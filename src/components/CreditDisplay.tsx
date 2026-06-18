@@ -8,7 +8,8 @@ interface CreditDisplayProps {
 
 export default function CreditDisplay({ balance }: CreditDisplayProps) {
   const maxCredits = 100;
-  const percentage = (balance / maxCredits) * 100;
+  const percentage = Math.min((balance / maxCredits) * 100, 100);
+  const formattedBalance = typeof balance === "number" ? balance.toFixed(4).replace(/\.?0+$/, "") : balance;
 
   let statusColor = "text-green-600";
   let bgColor = "bg-green-50";
@@ -31,7 +32,7 @@ export default function CreditDisplay({ balance }: CreditDisplayProps) {
           Credit Balance
         </h3>
         <span className={`text-2xl font-bold ${statusColor}`}>
-          {balance}
+          {formattedBalance}
         </span>
       </div>
 
