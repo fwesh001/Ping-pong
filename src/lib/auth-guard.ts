@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { fluxGetMe, FluxUser } from "@/lib/flux";
 import prisma from "@/lib/db";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export interface AuthUser {
   id: string;
@@ -66,10 +67,7 @@ export async function requireAuth(
   }
 
   // 4. Convert Decimal creditBalance to number
-  const creditBalance =
-    typeof localUser.creditBalance === "number"
-      ? localUser.creditBalance
-      : parseFloat(localUser.creditBalance.toString());
+  const creditBalance = Number(localUser.creditBalance);
 
   return {
     user: {
