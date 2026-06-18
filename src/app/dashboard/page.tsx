@@ -1,74 +1,153 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MonitorList from "@/components/MonitorList";
 import PingerForm from "@/components/PingerForm";
 import CreditDisplay from "@/components/CreditDisplay";
 
-export default function DashboardPage() {
-  const [monitors, setMonitors] = useState([
-    {
-      id: "1",
-      serviceName: "API Server",
-      targetUrl: "https://api.example.com/health",
-      status: "success",
-      lastChecked: "2 minutes ago",
-      uptime: 99.8,
-      pingInterval: 60,
-      isActive: true,
-    },
-    {
-      id: "2",
-      serviceName: "Web App",
-      targetUrl: "https://app.example.com",
-      status: "success",
-      lastChecked: "5 minutes ago",
-      uptime: 100,
-      pingInterval: 120,
-      isActive: true,
-    },
-    {
-      id: "3",
-      serviceName: "Database Backup",
-      targetUrl: "https://backup.example.com",
-      status: "failure",
-      lastChecked: "1 minute ago",
-      uptime: 95.2,
-      pingInterval: 300,
-      isActive: true,
-    },
-  ]);
+interface Monitor {
+  id: string;
+  serviceName: string;
+  targetUrl: string;
+  status: string;
+  lastChecked: string;
+  uptime: number;
+  pingInterval: number;
+  isActive: boolean;
+  costPerPing: number;
+}
 
-  const [creditBalance] = useState(85);
+export default function DashboardPage() {
+  const [monitors, setMonitors] = useState<Monitor[]>([]);
+  const [creditBalance, setCreditBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const handleAddMonitor = (newMonitor: any) => {
-    setMonitors([
-      ...monitors,
-      {
-        ...newMonitor,
-        id: String(monitors.length + 1),
-        status: "unknown",
-        lastChecked: "Never",
-        uptime: 0,
-      },
-    ]);
-    setShowAddForm(false);
+  const fetchData = useCallback(async () => {
+    try {
+      // Fetch user profile (includes credit balance)
+      const meRes = await fetch("/api/auth/me");
+      if (!meRes.ok) {
+        if (meRes.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        throw new Error("Failed to fetch user profile");
+      }
+      const meData = await meRes.json();
+      setCreditBalance(meData.user.creditBalance);
+
+      // Fetch monitors
+      const monRes = await fetch("/api/monitors");
+      if (!monRes.ok) throw new Error("Failed to fetch monitors");
+      const monData = await monRes.json();
+      setMonitors(monData.monitors || []);
+    } catch (err: any) {
+      setError(err.message || "Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleAddMonitor = async (newMonitor: any) => {
+    try {
+      const res = await fetch("/api/monitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMonitor),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create monitor");
+      }
+      setShowAddForm(false);
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
-  const handleToggleMonitor = (id: string) => {
-    setMonitors(
-      monitors.map((m) =>
-        m.id === id ? { ...m, isActive: !m.isActive } : m
-      )
+  const handleToggleMonitor = async (id: string) => {
+    const monitor = monitors.find((m) => m.id === id);
+    if (!monitor) return;
+
+    try {
+      const res = await fetch(`/api/monitors?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !monitor.isActive }),
+      });
+      if (!res.ok) throw new Error("Failed to update monitor");
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleDeleteMonitor = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this monitor?")) return;
+
+    try {
+      const res = await fetch(`/api/monitors?id=${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete monitor");
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar creditBalance={0} />
+        <main className="flex-1">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-gray-600">Loading dashboard...</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
-  };
+  }
 
-  const handleDeleteMonitor = (id: string) => {
-    setMonitors(monitors.filter((m) => m.id !== id));
-  };
+  if (error) {
+    return (
+      <>
+        <Navbar creditBalance={0} />
+        <main className="flex-1">
+          <div className="container mx-auto px-4 py-8">
+            <div className="card text-center py-12">
+              <p className="text-red-600 mb-4">⚠️ {error}</p>
+              <button onClick={fetchData} className="btn-primary">
+                Retry
+              </button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  const activeMonitors = monitors.filter((m) => m.isActive);
+  const avgUptime =
+    monitors.length > 0
+      ? monitors.reduce((sum, m) => sum + m.uptime, 0) / monitors.length
+      : 0;
 
   return (
     <>
@@ -91,7 +170,7 @@ export default function DashboardPage() {
                 Active Monitors
               </h3>
               <p className="text-4xl font-bold text-blue-600 mt-2">
-                {monitors.filter((m) => m.isActive).length}
+                {activeMonitors.length}
               </p>
               <p className="text-sm text-gray-600 mt-1">
                 of {monitors.length} total
@@ -102,11 +181,7 @@ export default function DashboardPage() {
                 Avg Uptime
               </h3>
               <p className="text-4xl font-bold text-green-600 mt-2">
-                {(
-                  monitors.reduce((sum, m) => sum + m.uptime, 0) /
-                  monitors.length
-                ).toFixed(1)}
-                %
+                {avgUptime.toFixed(1)}%
               </p>
               <p className="text-sm text-gray-600 mt-1">Last 30 days</p>
             </div>
@@ -127,6 +202,8 @@ export default function DashboardPage() {
                 <PingerForm
                   onSubmit={handleAddMonitor}
                   onCancel={() => setShowAddForm(false)}
+                  activeMonitorCount={activeMonitors.length}
+                  maxMonitors={5}
                 />
               </div>
             )}
