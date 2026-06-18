@@ -13,7 +13,7 @@ datasource db {
 model User {
   id                String     @id @default(cuid())
   fluxUserId        String     @unique @map("flux_user_id")
-  creditBalance     Int        @default(100) @map("credit_balance")
+  creditBalance     Decimal    @default(100.0000) @map("credit_balance")
   createdAt         DateTime   @default(now()) @map("created_at")
   updatedAt         DateTime   @updatedAt @map("updated_at")
   
@@ -32,6 +32,7 @@ model Monitor {
   pingIntervalSecs  Int        @default(60) @map("ping_interval_seconds")
   timeoutMs         Int        @default(10000) @map("timeout_ms")
   isActive          Boolean    @default(true) @map("is_active")
+  costPerPing       Decimal    @default(0.01389) @map("cost_per_ping")
   lastPingedAt      DateTime?  @map("last_pinged_at")
   createdAt         DateTime   @default(now()) @map("created_at")
   updatedAt         DateTime   @updatedAt @map("updated_at")
