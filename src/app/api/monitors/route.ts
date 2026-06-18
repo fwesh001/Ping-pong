@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, calculatePingCost } from "@/lib/auth-guard";
 import prisma from "@/lib/db";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const MAX_ACTIVE_MONITORS = 5;
 
@@ -70,10 +71,7 @@ export async function GET(req: NextRequest) {
         targetUrl: m.targetUrl,
         pingInterval: m.pingIntervalSecs,
         isActive: m.isActive,
-        costPerPing:
-          typeof m.costPerPing === "number"
-            ? m.costPerPing
-            : parseFloat(m.costPerPing.toString()),
+        costPerPing: Number(m.costPerPing),
         status: m.pingLogs[0]?.status || "unknown",
         lastChecked,
         uptime: Math.round(uptime * 10) / 10,
@@ -159,7 +157,7 @@ export async function POST(req: NextRequest) {
           targetUrl: monitor.targetUrl,
           pingInterval: monitor.pingIntervalSecs,
           isActive: monitor.isActive,
-          costPerPing: parseFloat(monitor.costPerPing.toString()),
+          costPerPing: Number(monitor.costPerPing),
           status: "unknown",
           lastChecked: "Never",
           uptime: 0,
@@ -248,7 +246,7 @@ export async function PATCH(req: NextRequest) {
         targetUrl: updated.targetUrl,
         pingInterval: updated.pingIntervalSecs,
         isActive: updated.isActive,
-        costPerPing: parseFloat(updated.costPerPing.toString()),
+        costPerPing: Number(updated.costPerPing),
       },
     });
   } catch (error: any) {
