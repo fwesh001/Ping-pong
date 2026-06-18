@@ -11,6 +11,7 @@ interface Monitor {
   uptime: number;
   pingInterval: number;
   isActive: boolean;
+  costPerPing: number;
 }
 
 interface MonitorListProps {
@@ -65,7 +66,7 @@ export default function MonitorList({
               </p>
 
               {/* Grid of details */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 uppercase font-medium">
                     Last Checked
@@ -88,6 +89,14 @@ export default function MonitorList({
                   </p>
                   <p className="text-sm font-medium text-gray-900">
                     {monitor.pingInterval}s
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">
+                    Cost/Ping
+                  </p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {monitor.costPerPing.toFixed(5)}
                   </p>
                 </div>
                 <div>
