@@ -1,0 +1,187 @@
+/**
+ * Flux API Wrapper
+ *
+ * Communicates with the Flux authentication service.
+ * Base URL: https://flux.zabdiel.tech/api/v1
+ *
+ * Endpoints used:
+ *   POST /register          – create a new Flux user
+ *   POST /login/access-token – OAuth2 password flow (form-urlencoded)
+ *   GET  /users/me          – get current user (Bearer token)
+ *   GET  /auth/google/login – initiate Google OAuth redirect
+ */
+
+const FLUX_API_BASE =
+  process.env.FLUX_API_URL || "https://flux.zabdiel.tech/api/v1";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface FluxUser {
+  id: string;
+  email: string;
+  username: string;
+  full_name?: string;
+  is_active?: boolean;
+}
+
+export interface FluxLoginResponse {
+  access_token: string;
+  token_type: string;
+}
+
+export interface FluxRegisterResponse {
+  id: string;
+  email: string;
+  username: string;
+  full_name?: string;
+  is_active?: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Internal fetch helper
+// ---------------------------------------------------------------------------
+
+async function fluxFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const url = `${FLUX_API_BASE}${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+  if (!res.ok) {
+    let message = `Flux API error ${res.status}`;
+    try {
+      const body = await res.json();
+      if (typeof body.detail === "string") {
+        message = body.detail;
+      } else if (Array.isArray(body.detail)) {
+        message = body.detail
+          .map((e: any) => `${e.loc?.join(".")}: ${e.msg}`)
+          .join(", ");
+      }
+    } catch {
+      /* ignore parse errors */
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<T>;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Register a new user on Flux.
+ * Payload: { email, username, full_name, password }
+ */
+export async function fluxSignup(
+  email: string,
+  username: string,
+  fullName: string,
+  password: string
+): Promise<FluxRegisterResponse> {
+  return fluxFetch<FluxRegisterResponse>("/register", {
+    method: "POST",
+    body: JSON.stringify({
+      email,
+      username,
+      full_name: fullName,
+      password,
+    }),
+  });
+}
+
+/**
+ * Log in with email/username + password via OAuth2 form-urlencoded flow.
+ * Returns { access_token, token_type }.
+ */
+export async function fluxLogin(
+  emailOrUsername: string,
+  password: string
+): Promise<FluxLoginResponse> {
+  const body = new URLSearchParams();
+  body.append("username", emailOrUsername);
+  body.append("password", password);
+
+  const url = `${FLUX_API_BASE}/login/access-token`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
+  });
+
+  if (!res.ok) {
+    let message = "Invalid credentials";
+    try {
+      const data = await res.json();
+      if (typeof data.detail === "string") message = data.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<FluxLoginResponse>;
+}
+
+/**
+ * Fetch the currently authenticated Flux user.
+ * Requires a valid Bearer access token.
+ */
+export async function fluxGetMe(accessToken: string): Promise<FluxUser> {
+  return fluxFetch<FluxUser>("/users/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+/**
+ * Check whether a given email or username already exists on Flux.
+ * We attempt a login with a dummy password – Flux returns 401 for valid
+ * credentials-wrong-password and 400/422 for missing user.
+ *
+ * A cleaner approach is to rely on the signup endpoint's duplicate check.
+ * This helper is kept for explicit checks if needed elsewhere.
+ */
+export async function fluxCheckDuplicate(
+  email: string,
+  username: string
+): Promise<{ emailTaken: boolean; usernameTaken: boolean }> {
+  // Try signup with a dummy password to see which field conflicts
+  let emailTaken = false;
+  let usernameTaken = false;
+
+  try {
+    await fluxFetch("/register", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        username,
+        full_name: "check",
+        password: "dummy_check_password_123",
+      }),
+    });
+  } catch (err: any) {
+    const msg = err.message.toLowerCase();
+    if (msg.includes("email")) emailTaken = true;
+    if (msg.includes("username")) usernameTaken = true;
+  }
+
+  return { emailTaken, usernameTaken };
+}
+
+/**
+ * Return the Google OAuth login redirect URL.
+ */
+export function fluxGoogleLoginUrl(): string {
+  return `${FLUX_API_BASE}/auth/google/login`;
+}
