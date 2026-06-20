@@ -40,3 +40,4 @@ yarn-error.log*
 
 # Prisma
 prisma/.env
+Ping-pong.code-workspace
