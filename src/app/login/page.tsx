@@ -1,15 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Display OAuth errors from callback redirect
+  useEffect(() => {
+    const oauthError = searchParams.get("error");
+    if (oauthError) {
+      const errorMessages: Record<string, string> = {
+        invalid_oauth_callback: "Invalid OAuth callback. Please try again.",
+        oauth_verification_failed: "Failed to verify with Google. Please try again.",
+        access_denied: "You denied access. Please try again.",
+        token_exchange_failed: "Google token exchange failed. Please try again.",
+      };
+      setError(errorMessages[oauthError] || `OAuth error: ${oauthError}`);
+    }
+  }, [searchParams]);
+
+  // Build the Google OAuth URL with callback redirect
+  const fluxApiUrl = process.env.NEXT_PUBLIC_FLUX_API_URL || "https://flux.zabdiel.tech/api/v1";
+  const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/callback`;
+  const googleOAuthUrl = `${fluxApiUrl}/auth/google/login?next=${encodeURIComponent(callbackUrl)}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +147,7 @@ export default function LoginPage() {
 
           {/* Google OAuth */}
           <a
-            href={`${process.env.NEXT_PUBLIC_FLUX_API_URL || "https://flux.zabdiel.tech/api/v1"}/auth/google/login`}
+            href={googleOAuthUrl}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors font-medium text-gray-700"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
