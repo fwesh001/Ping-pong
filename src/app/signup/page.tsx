@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const router = useRouter();
+
+  // Build the Google OAuth URL with callback redirect
+  const fluxApiUrl = process.env.NEXT_PUBLIC_FLUX_API_URL || "https://flux.zabdiel.tech/api/v1";
+  const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/callback`;
+  const googleOAuthUrl = `${fluxApiUrl}/auth/google/login?next=${encodeURIComponent(callbackUrl)}`;
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -220,7 +225,7 @@ export default function SignupPage() {
 
           {/* Google OAuth */}
           <a
-            href={`${process.env.NEXT_PUBLIC_FLUX_API_URL || "https://flux.zabdiel.tech/api/v1"}/auth/google/login`}
+            href={googleOAuthUrl}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors font-medium text-gray-700"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
