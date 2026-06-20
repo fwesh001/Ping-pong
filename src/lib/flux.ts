@@ -181,7 +181,20 @@ export async function fluxCheckDuplicate(
 
 /**
  * Return the Google OAuth login redirect URL.
+ * @param next - Optional URL to redirect to after OAuth completes (e.g., ping-pong callback)
  */
-export function fluxGoogleLoginUrl(): string {
-  return `${FLUX_API_BASE}/auth/google/login`;
+export function fluxGoogleLoginUrl(next?: string): string {
+  let url = `${FLUX_API_BASE}/auth/google/login`;
+  if (next) {
+    url += `?next=${encodeURIComponent(next)}`;
+  }
+  return url;
+}
+
+/**
+ * Return the full callback URL for ping-pong's OAuth callback route.
+ */
+export function fluxOAuthCallbackUrl(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  return `${baseUrl}/api/auth/callback`;
 }
