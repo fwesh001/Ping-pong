@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import MonitorList from "@/components/MonitorList";
 import PingerForm from "@/components/PingerForm";
 import CreditDisplay from "@/components/CreditDisplay";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 interface Monitor {
   id: string;
@@ -16,7 +17,13 @@ interface Monitor {
   uptime: number;
   pingInterval: number;
   isActive: boolean;
+  isOneOff: boolean;
+  isCompleted: boolean;
   costPerPing: number;
+  avgResponseTimeMs: number | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  createdAt: string;
 }
 
 export default function DashboardPage() {
@@ -25,214 +32,108 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch user profile (includes credit balance)
       const meRes = await fetch("/api/auth/me");
-      if (!meRes.ok) {
-        if (meRes.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-        throw new Error("Failed to fetch user profile");
-      }
+      if (!meRes.ok) { if (meRes.status === 401) { window.location.href = "/login"; return; } throw new Error("Auth failed"); }
       const meData = await meRes.json();
       setCreditBalance(meData.user.creditBalance);
-
-      // Fetch monitors
       const monRes = await fetch("/api/monitors");
       if (!monRes.ok) throw new Error("Failed to fetch monitors");
       const monData = await monRes.json();
       setMonitors(monData.monitors || []);
     } catch (err: any) {
       setError(err.message || "Failed to load dashboard data");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleAddMonitor = async (newMonitor: any) => {
     try {
-      const res = await fetch("/api/monitors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMonitor),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create monitor");
-      }
-      setShowAddForm(false);
-      await fetchData();
-    } catch (err: any) {
-      alert(err.message);
-    }
+      const res = await fetch("/api/monitors", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newMonitor) });
+      if (!res.ok) { const data = await res.json(); throw new Error(data.error || "Failed to create"); }
+      setShowAddForm(false); await fetchData();
+    } catch (err: any) { alert(err.message); }
   };
 
   const handleToggleMonitor = async (id: string) => {
     const monitor = monitors.find((m) => m.id === id);
     if (!monitor) return;
-
     try {
-      const res = await fetch(`/api/monitors?id=${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !monitor.isActive }),
-      });
-      if (!res.ok) throw new Error("Failed to update monitor");
-      await fetchData();
-    } catch (err: any) {
-      alert(err.message);
-    }
+      const res = await fetch(`/api/monitors?id=${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isActive: !monitor.isActive }) });
+      if (!res.ok) throw new Error("Failed"); await fetchData();
+    } catch (err: any) { alert(err.message); }
   };
 
-  const handleDeleteMonitor = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this monitor?")) return;
-
+  const handleDeleteMonitor = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/monitors?id=${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete monitor");
-      await fetchData();
-    } catch (err: any) {
-      alert(err.message);
-    }
+      const res = await fetch(`/api/monitors?id=${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed"); setDeleteTarget(null); await fetchData();
+    } catch (err: any) { alert(err.message); }
   };
 
   if (loading) {
-    return (
-      <>
-        <Navbar creditBalance={0} />
-        <main className="flex-1">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Loading dashboard...</p>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
+    return (<><Navbar creditBalance={0} /><main className="flex-1"><div className="container mx-auto px-4 py-8"><div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div></div></main><Footer /></>);
   }
 
   if (error) {
-    return (
-      <>
-        <Navbar creditBalance={0} />
-        <main className="flex-1">
-          <div className="container mx-auto px-4 py-8">
-            <div className="card text-center py-12">
-              <p className="text-red-600 mb-4">⚠️ {error}</p>
-              <button onClick={fetchData} className="btn-primary">
-                Retry
-              </button>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
+    return (<><Navbar creditBalance={0} /><main className="flex-1"><div className="container mx-auto px-4 py-8"><div className="card text-center py-12"><p className="text-red-600 mb-4">{error}</p><button onClick={fetchData} className="btn-primary">Retry</button></div></div></main><Footer /></>);
   }
 
-  const activeMonitors = monitors.filter((m) => m.isActive);
-  const avgUptime =
-    monitors.length > 0
-      ? monitors.reduce((sum, m) => sum + m.uptime, 0) / monitors.length
-      : 0;
+  const activeMonitors = monitors.filter((m) => m.isActive && !m.isCompleted);
+  const avgUptime = monitors.length > 0 ? monitors.reduce((sum, m) => sum + m.uptime, 0) / monitors.length : 0;
 
   return (
     <>
       <Navbar creditBalance={creditBalance} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          {/* Header Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-2">
-              Monitor your web services and track uptime
-            </p>
+            <p className="text-gray-600 mt-2">Monitor your web services and track uptime</p>
           </div>
-
-          {/* Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <CreditDisplay balance={creditBalance} />
             <div className="card">
-              <h3 className="text-sm font-medium text-gray-500 uppercase">
-                Active Monitors
-              </h3>
-              <p className="text-4xl font-bold text-blue-600 mt-2">
-                {activeMonitors.length}
-              </p>
-              <p className="text-sm text-gray-600 mt-1">
-                of {monitors.length} total
-              </p>
+              <h3 className="text-sm font-medium text-gray-500 uppercase">Active Monitors</h3>
+              <p className="text-4xl font-bold text-blue-600 mt-2">{activeMonitors.length}</p>
+              <p className="text-sm text-gray-600 mt-1">of {monitors.length} total</p>
             </div>
             <div className="card">
-              <h3 className="text-sm font-medium text-gray-500 uppercase">
-                Avg Uptime
-              </h3>
-              <p className="text-4xl font-bold text-green-600 mt-2">
-                {avgUptime.toFixed(1)}%
-              </p>
+              <h3 className="text-sm font-medium text-gray-500 uppercase">Avg Uptime</h3>
+              <p className="text-4xl font-bold text-green-600 mt-2">{avgUptime.toFixed(1)}%</p>
               <p className="text-sm text-gray-600 mt-1">Last 30 days</p>
             </div>
           </div>
-
-          {/* Add Monitor Section */}
           <div className="mb-8">
             {!showAddForm ? (
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="btn-primary"
-              >
-                + Add New Monitor
-              </button>
+              <button onClick={() => setShowAddForm(true)} className="btn-primary">+ Add New Monitor</button>
             ) : (
               <div className="card">
                 <h2 className="text-2xl font-bold mb-4">Add New Monitor</h2>
-                <PingerForm
-                  onSubmit={handleAddMonitor}
-                  onCancel={() => setShowAddForm(false)}
-                  activeMonitorCount={activeMonitors.length}
-                  maxMonitors={5}
-                />
+                <PingerForm onSubmit={handleAddMonitor} onCancel={() => setShowAddForm(false)} activeMonitorCount={activeMonitors.length} maxMonitors={5} />
               </div>
             )}
           </div>
-
-          {/* Monitors List */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Your Monitors</h2>
             {monitors.length > 0 ? (
-              <MonitorList
-                monitors={monitors}
-                onToggle={handleToggleMonitor}
-                onDelete={handleDeleteMonitor}
-              />
+              <MonitorList monitors={monitors} onToggle={handleToggleMonitor} onDelete={(id) => { const m = monitors.find((x) => x.id === id); if (m) setDeleteTarget({ id, name: m.serviceName }); }} />
             ) : (
               <div className="card text-center py-12">
                 <p className="text-gray-600 mb-4">No monitors yet</p>
-                <button
-                  onClick={() => setShowAddForm(true)}
-                  className="btn-primary"
-                >
-                  Create your first monitor
-                </button>
+                <button onClick={() => setShowAddForm(true)} className="btn-primary">Create your first monitor</button>
               </div>
             )}
           </div>
         </div>
       </main>
       <Footer />
+      <ConfirmationModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDeleteMonitor} title="Delete Monitor" targetName={deleteTarget?.name || ""} confirmButtonText="Delete Permanently" variant="danger" />
     </>
   );
 }
