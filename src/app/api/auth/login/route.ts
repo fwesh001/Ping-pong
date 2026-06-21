@@ -29,16 +29,18 @@ export async function POST(req: NextRequest) {
     // 2. Get user details from Flux
     const fluxUser = await fluxGetMe(loginResult.access_token);
 
+    const fluxUserId = String(fluxUser.id);
+
     // 3. Sync local user (create if first time, or verify exists)
     let localUser = await prisma.user.findUnique({
-      where: { fluxUserId: fluxUser.id },
+      where: { fluxUserId },
     });
 
     if (!localUser) {
       // First-time login via Flux – create local record
       localUser = await prisma.user.create({
         data: {
-          fluxUserId: fluxUser.id,
+          fluxUserId,
           creditBalance: parseInt(
             process.env.INITIAL_CREDIT_BALANCE || "100",
             10
