@@ -46,15 +46,17 @@ export async function GET(req: NextRequest) {
     // 1. Verify the token with Flux and get user details
     const fluxUser = await fluxGetMe(token);
 
+    const fluxUserId = String(fluxUser.id);
+
     // 2. Sync local user (create if first time)
     let localUser = await prisma.user.findUnique({
-      where: { fluxUserId: fluxUser.id },
+      where: { fluxUserId },
     });
 
     if (!localUser) {
       localUser = await prisma.user.create({
         data: {
-          fluxUserId: fluxUser.id,
+          fluxUserId,
           creditBalance: INITIAL_CREDIT_BALANCE,
         },
       });
