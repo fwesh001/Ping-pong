@@ -54,9 +54,11 @@ export async function requireAuth(
     );
   }
 
+  const fluxUserId = String(fluxUser.id);
+
   // 3. Get local user
   const localUser = await prisma.user.findUnique({
-    where: { fluxUserId: fluxUser.id },
+    where: { fluxUserId },
   });
 
   if (!localUser) {
