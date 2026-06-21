@@ -6,72 +6,71 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id                String     @id @default(cuid())
-  fluxUserId        String     @unique @map("flux_user_id")
-  creditBalance     Decimal    @default(100.0000) @map("credit_balance")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
-  
+  fluxUserId        String     @unique
+  creditBalance     Float      @default(100.0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
   monitors          Monitor[]
   pingLogs          PingLog[]
   dailyCredits      DailyCreditClaim[]
-
-  @@map("users")
 }
 
 model Monitor {
   id                String     @id @default(cuid())
-  userId            String     @map("user_id")
-  serviceName       String     @map("service_name")
-  targetUrl         String     @map("target_url")
-  pingIntervalSecs  Int        @default(60) @map("ping_interval_seconds")
-  timeoutMs         Int        @default(10000) @map("timeout_ms")
-  isActive          Boolean    @default(true) @map("is_active")
-  costPerPing       Decimal    @default(0.01389) @map("cost_per_ping")
-  lastPingedAt      DateTime?  @map("last_pinged_at")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
-  
+  userId            String
+  serviceName       String
+  targetUrl         String
+  pingIntervalSecs  Int        @default(60)
+  timeoutMs         Int        @default(10000)
+  isActive          Boolean    @default(true)
+  costPerPing       Float      @default(0.01389)
+  lastPingedAt      DateTime?
+  startsAt          DateTime?
+  endsAt            DateTime?
+  isOneOff          Boolean    @default(false)
+  isCompleted       Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
   user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   pingLogs          PingLog[]
 
   @@index([userId])
-  @@map("monitors")
 }
 
 model PingLog {
   id                String     @id @default(cuid())
-  monitorId         String     @map("monitor_id")
-  userId            String     @map("user_id")
-  status            String     // "success", "failure", "timeout"
-  responseTimeMs    Int?       @map("response_time_ms")
-  statusCode        Int?       @map("status_code")
-  errorMessage      String?    @map("error_message")
-  checkedAt         DateTime   @map("checked_at")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  
+  monitorId         String
+  userId            String
+  status            String
+  responseTimeMs    Int?
+  statusCode        Int?
+  errorMessage      String?
+  checkedAt         DateTime
+  createdAt         DateTime   @default(now())
+
   monitor           Monitor    @relation(fields: [monitorId], references: [id], onDelete: Cascade)
   user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([monitorId])
   @@index([userId])
-  @@map("ping_logs")
 }
 
 model DailyCreditClaim {
   id                String     @id @default(cuid())
-  userId            String     @map("user_id")
-  claimedAt         DateTime   @map("claimed_at")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  
+  userId            String
+  claimedAt         DateTime
+  createdAt         DateTime   @default(now())
+
   user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, claimedAt]) // One claim per user per day
+  @@unique([userId, claimedAt])
   @@index([userId])
-  @@map("daily_credit_claims")
 }
