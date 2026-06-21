@@ -38,6 +38,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# SQLite
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
+
 # Prisma
 prisma/.env
 Ping-pong.code-workspace
