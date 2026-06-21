@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "prisma:db:push": "prisma db push",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "next": "14.0.0",
