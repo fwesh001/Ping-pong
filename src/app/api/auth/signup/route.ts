@@ -33,10 +33,12 @@ export async function POST(req: NextRequest) {
     // 1. Register user on Flux
     const fluxUser = await fluxSignup(email, username, fullName, password);
 
+    const fluxUserId = String(fluxUser.id);
+
     // 2. Create local user with initial credit balance
     const localUser = await prisma.user.create({
       data: {
-        fluxUserId: fluxUser.id,
+        fluxUserId,
         creditBalance: INITIAL_CREDIT_BALANCE,
       },
     });
