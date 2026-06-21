@@ -19,7 +19,7 @@ const FLUX_API_BASE =
 // ---------------------------------------------------------------------------
 
 export interface FluxUser {
-  id: string;
+  id: number | string;
   email: string;
   username: string;
   full_name?: string;
