@@ -25,9 +25,11 @@ export async function GET(req: NextRequest) {
     // 2. Verify token with Flux and get user details
     const fluxUser = await fluxGetMe(token);
 
+    const fluxUserId = String(fluxUser.id);
+
     // 3. Get local user data (credit balance, etc.)
     const localUser = await prisma.user.findUnique({
-      where: { fluxUserId: fluxUser.id },
+      where: { fluxUserId },
     });
 
     if (!localUser) {
