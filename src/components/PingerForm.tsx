@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from "react";
 
 const HOURLY_DRAIN = 0.8333;
+const ONE_OFF_FLAT_COST = 25.0;
+const MIN_INTERVAL_SECS = 60;
 
 interface PingerFormProps {
   onSubmit: (data: any) => void;
@@ -11,13 +13,10 @@ interface PingerFormProps {
   maxMonitors?: number;
 }
 
-const INTERVAL_OPTIONS = [
-  { value: 30, label: "Every 30 seconds" },
-  { value: 60, label: "Every 1 minute" },
-  { value: 300, label: "Every 5 minutes" },
-  { value: 600, label: "Every 10 minutes" },
-  { value: 1800, label: "Every 30 minutes" },
-  { value: 3600, label: "Every 1 hour" },
+const INTERVAL_UNITS = [
+  { value: "seconds", label: "Seconds", multiplier: 1 },
+  { value: "minutes", label: "Minutes", multiplier: 60 },
+  { value: "hours", label: "Hours", multiplier: 3600 },
 ];
 
 export default function PingerForm({
@@ -26,232 +25,245 @@ export default function PingerForm({
   activeMonitorCount = 0,
   maxMonitors = 5,
 }: PingerFormProps) {
-  const [formData, setFormData] = useState({
-    serviceName: "",
-    targetUrl: "",
-    pingInterval: 60,
-  });
-
+  const [serviceName, setServiceName] = useState("");
+  const [targetUrl, setTargetUrl] = useState("");
+  const [intervalValue, setIntervalValue] = useState(60);
+  const [intervalUnit, setIntervalUnit] = useState("seconds");
+  const [timeoutMs, setTimeoutMs] = useState(10000);
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [isOneOff, setIsOneOff] = useState(false);
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Calculate dynamic cost for the selected interval
+  // Compute interval in seconds from value + unit
+  const intervalSecs = useMemo(() => {
+    const unit = INTERVAL_UNITS.find((u) => u.value === intervalUnit);
+    return intervalValue * (unit?.multiplier || 1);
+  }, [intervalValue, intervalUnit]);
+
+  // Cost calculations
   const costPerPing = useMemo(() => {
-    return (HOURLY_DRAIN * formData.pingInterval) / 3600;
-  }, [formData.pingInterval]);
+    if (isOneOff) return ONE_OFF_FLAT_COST;
+    return (HOURLY_DRAIN * intervalSecs) / 3600;
+  }, [intervalSecs, isOneOff]);
 
   const pingsPerDay = useMemo(() => {
-    return (24 * 3600) / formData.pingInterval;
-  }, [formData.pingInterval]);
+    if (isOneOff) return 1;
+    return (24 * 3600) / intervalSecs;
+  }, [intervalSecs, isOneOff]);
 
   const dailyCost = useMemo(() => {
+    if (isOneOff) return ONE_OFF_FLAT_COST;
     return costPerPing * pingsPerDay;
-  }, [costPerPing, pingsPerDay]);
+  }, [costPerPing, pingsPerDay, isOneOff]);
 
   const daysUntilEmpty = useMemo(() => {
     return dailyCost > 0 ? 100 / dailyCost : Infinity;
   }, [dailyCost]);
 
-  const validateForm = () => {
+  const validate = () => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.serviceName.trim()) {
-      newErrors.serviceName = "Service name is required";
-    }
-    if (!formData.targetUrl.trim()) {
+    if (!serviceName.trim()) newErrors.serviceName = "Service name is required";
+    if (!targetUrl.trim()) {
       newErrors.targetUrl = "Target URL is required";
     } else {
-      try {
-        new URL(formData.targetUrl);
-      } catch {
-        newErrors.targetUrl = "Invalid URL format";
-      }
+      try { new URL(targetUrl); } catch { newErrors.targetUrl = "Invalid URL format"; }
     }
-    if (formData.pingInterval < 30 || formData.pingInterval > 3600) {
-      newErrors.pingInterval =
-        "Ping interval must be between 30 and 3600 seconds";
+    if (intervalSecs < MIN_INTERVAL_SECS) {
+      newErrors.interval = `Minimum interval is ${MIN_INTERVAL_SECS} seconds`;
     }
-
+    if (intervalSecs > 3600) {
+      newErrors.interval = "Maximum interval is 3600 seconds (1 hour)";
+    }
+    if (isScheduled && !startsAt) {
+      newErrors.startsAt = "Start time is required for scheduled monitors";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "pingInterval" ? parseInt(value, 10) : value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      });
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSubmit({
-        ...formData,
-        costPerPing,
-      });
-      setFormData({ serviceName: "", targetUrl: "", pingInterval: 60 });
-    }
+    if (!validate()) return;
+
+    onSubmit({
+      serviceName: serviceName.trim(),
+      targetUrl: targetUrl.trim(),
+      pingInterval: intervalSecs,
+      timeoutMs,
+      isOneOff: isScheduled && isOneOff,
+      startsAt: isScheduled && startsAt ? new Date(startsAt).toISOString() : null,
+      endsAt: isScheduled && endsAt ? new Date(endsAt).toISOString() : null,
+      costPerPing,
+    });
   };
 
   const atMaxMonitors = activeMonitorCount >= maxMonitors;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Max monitors warning */}
+    <form onSubmit={handleSubmit} className="space-y-5">
       {atMaxMonitors && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-          ⚠️ You have reached the maximum of {maxMonitors} active monitors.
-          Pause or delete an existing one to add more.
+          ⚠️ Maximum of {maxMonitors} active monitors reached. Pause or delete one to add more.
         </div>
       )}
 
       {/* Service Name */}
       <div>
-        <label
-          htmlFor="serviceName"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="serviceName" className="block text-sm font-medium text-gray-700 mb-1">
           Service Name
         </label>
         <input
-          id="serviceName"
-          type="text"
-          name="serviceName"
-          value={formData.serviceName}
-          onChange={handleChange}
+          id="serviceName" type="text" value={serviceName}
+          onChange={(e) => { setServiceName(e.target.value); setErrors((p) => { const n = { ...p }; delete n.serviceName; return n; }); }}
           placeholder="e.g., API Server"
-          className={`input-field ${
-            errors.serviceName ? "border-red-500 focus:border-red-500" : ""
-          }`}
+          className={`input-field ${errors.serviceName ? "border-red-500" : ""}`}
           disabled={atMaxMonitors}
         />
-        {errors.serviceName && (
-          <p className="text-red-600 text-sm mt-1">{errors.serviceName}</p>
-        )}
+        {errors.serviceName && <p className="text-red-600 text-sm mt-1">{errors.serviceName}</p>}
       </div>
 
       {/* Target URL */}
       <div>
-        <label
-          htmlFor="targetUrl"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="targetUrl" className="block text-sm font-medium text-gray-700 mb-1">
           Target URL
         </label>
         <input
-          id="targetUrl"
-          type="text"
-          name="targetUrl"
-          value={formData.targetUrl}
-          onChange={handleChange}
-          placeholder="e.g., https://api.example.com/health"
-          className={`input-field ${
-            errors.targetUrl ? "border-red-500 focus:border-red-500" : ""
-          }`}
+          id="targetUrl" type="text" value={targetUrl}
+          onChange={(e) => { setTargetUrl(e.target.value); setErrors((p) => { const n = { ...p }; delete n.targetUrl; return n; }); }}
+          placeholder="https://api.example.com/health"
+          className={`input-field ${errors.targetUrl ? "border-red-500" : ""}`}
           disabled={atMaxMonitors}
         />
-        {errors.targetUrl && (
-          <p className="text-red-600 text-sm mt-1">{errors.targetUrl}</p>
-        )}
+        {errors.targetUrl && <p className="text-red-600 text-sm mt-1">{errors.targetUrl}</p>}
+      </div>
+
+      {/* Interval: numeric input + unit selector */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Ping Interval</label>
+        <div className="flex gap-2">
+          <input
+            type="number" value={intervalValue}
+            onChange={(e) => { setIntervalValue(Number(e.target.value)); setErrors((p) => { const n = { ...p }; delete n.interval; return n; }); }}
+            min={1} max={3600}
+            className={`input-field w-32 ${errors.interval ? "border-red-500" : ""}`}
+            disabled={atMaxMonitors}
+          />
+          <select
+            value={intervalUnit}
+            onChange={(e) => { setIntervalUnit(e.target.value); setErrors((p) => { const n = { ...p }; delete n.interval; return n; }); }}
+            className="input-field w-36"
+            disabled={atMaxMonitors}
+          >
+            {INTERVAL_UNITS.map((u) => (
+              <option key={u.value} value={u.value}>{u.label}</option>
+            ))}
+          </select>
+        </div>
+        {errors.interval && <p className="text-red-600 text-sm mt-1">{errors.interval}</p>}
         <p className="text-xs text-gray-500 mt-1">
-          Enter a valid URL starting with http:// or https://
+          = {intervalSecs} seconds {intervalSecs < MIN_INTERVAL_SECS ? `(minimum ${MIN_INTERVAL_SECS}s)` : ""}
         </p>
       </div>
 
-      {/* Ping Interval */}
+      {/* Timeout */}
       <div>
-        <label
-          htmlFor="pingInterval"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Ping Interval
+        <label htmlFor="timeoutMs" className="block text-sm font-medium text-gray-700 mb-1">
+          Timeout (ms)
         </label>
-        <select
-          id="pingInterval"
-          name="pingInterval"
-          value={formData.pingInterval}
-          onChange={handleChange}
-          className={`input-field ${
-            errors.pingInterval ? "border-red-500 focus:border-red-500" : ""
-          }`}
+        <input
+          id="timeoutMs" type="number" value={timeoutMs}
+          onChange={(e) => setTimeoutMs(Number(e.target.value))}
+          min={1000} max={60000} step={500}
+          className="input-field w-40"
           disabled={atMaxMonitors}
-        >
-          {INTERVAL_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        {errors.pingInterval && (
-          <p className="text-red-600 text-sm mt-1">{errors.pingInterval}</p>
+        />
+      </div>
+
+      {/* Scheduling Toggle */}
+      <div className="border-t border-gray-200 pt-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-sm font-medium text-gray-900">Scheduling</h3>
+            <p className="text-xs text-gray-500">Set a time window for this monitor</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked={isScheduled} onChange={(e) => setIsScheduled(e.target.checked)} className="sr-only peer" disabled={atMaxMonitors} />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+
+        {isScheduled && (
+          <div className="space-y-4 bg-gray-50 rounded-lg p-4">
+            {/* One-off vs Repeat */}
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="scheduleType" checked={!isOneOff} onChange={() => setIsOneOff(false)} className="text-blue-600" />
+                <span className="text-sm text-gray-700">Repeat on interval</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="scheduleType" checked={isOneOff} onChange={() => setIsOneOff(true)} className="text-purple-600" />
+                <span className="text-sm text-gray-700">Run once (25 credits)</span>
+              </label>
+            </div>
+
+            {/* Date/Time pickers */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start At</label>
+                <input
+                  type="datetime-local" value={startsAt}
+                  onChange={(e) => { setStartsAt(e.target.value); setErrors((p) => { const n = { ...p }; delete n.startsAt; return n; }); }}
+                  className={`input-field text-sm ${errors.startsAt ? "border-red-500" : ""}`}
+                />
+                {errors.startsAt && <p className="text-red-600 text-xs mt-1">{errors.startsAt}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End At (optional)</label>
+                <input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className="input-field text-sm" />
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Dynamic Cost Breakdown */}
+      {/* Cost Breakdown */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-3">
-          💰 Cost Breakdown
-        </h4>
+        <h4 className="text-sm font-semibold text-blue-900 mb-3">💰 Cost Breakdown</h4>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-blue-700">Cost per ping</p>
-            <p className="font-bold text-blue-900">
-              {costPerPing.toFixed(5)} credits
-            </p>
+            <p className="font-bold text-blue-900">{costPerPing.toFixed(5)} credits</p>
           </div>
           <div>
-            <p className="text-blue-700">Pings per day</p>
-            <p className="font-bold text-blue-900">
-              {pingsPerDay.toLocaleString()}
-            </p>
+            <p className="text-blue-700">{isOneOff ? "Total cost" : "Pings per day"}</p>
+            <p className="font-bold text-blue-900">{isOneOff ? "25.0000" : pingsPerDay.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-blue-700">Daily cost</p>
-            <p className="font-bold text-blue-900">
-              {dailyCost.toFixed(4)} credits/day
-            </p>
+            <p className="text-blue-700">{isOneOff ? "Type" : "Daily cost"}</p>
+            <p className="font-bold text-blue-900">{isOneOff ? "One-off" : `${dailyCost.toFixed(4)} credits/day`}</p>
           </div>
           <div>
             <p className="text-blue-700">100 credits last</p>
             <p className="font-bold text-blue-900">
-              {daysUntilEmpty === Infinity
-                ? "∞"
-                : `~${daysUntilEmpty.toFixed(1)} days`}
+              {daysUntilEmpty === Infinity ? "∞" : `~${daysUntilEmpty.toFixed(1)} days`}
             </p>
           </div>
         </div>
-        <p className="text-xs text-blue-600 mt-3">
-          Formula: (0.8333 × {formData.pingInterval}s) ÷ 3600s ={" "}
-          {costPerPing.toFixed(5)} credits/ping
-        </p>
+        {!isOneOff && (
+          <p className="text-xs text-blue-600 mt-3">
+            Formula: (0.8333 × {intervalSecs}s) ÷ 3600s = {costPerPing.toFixed(5)} credits/ping
+          </p>
+        )}
       </div>
 
-      {/* Action Buttons */}
+      {/* Actions */}
       <div className="flex gap-3">
-        <button
-          type="submit"
-          className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={atMaxMonitors}
-        >
+        <button type="submit" className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed" disabled={atMaxMonitors}>
           Create Monitor
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="btn-secondary flex-1"
-        >
-          Cancel
-        </button>
+        <button type="button" onClick={onCancel} className="btn-secondary flex-1">Cancel</button>
       </div>
     </form>
   );
