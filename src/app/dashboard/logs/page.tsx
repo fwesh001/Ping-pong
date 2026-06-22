@@ -69,8 +69,8 @@ export default function LogsPage() {
   }, []);
 
   useEffect(() => { fetchMonitors(); }, [fetchMonitors]);
-  useEffect(() => { setLoading(true); fetchLogs(true); }, [filterMonitorId, filterStatus]);
-  useEffect(() => { if (offset > 0) fetchLogs(false); }, [offset]);
+  useEffect(() => { setLoading(true); fetchLogs(true); }, [fetchLogs]);
+  useEffect(() => { if (offset > 0) fetchLogs(false); }, [offset, fetchLogs]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
