@@ -30,7 +30,7 @@ export default function Navbar({ creditBalance }: NavbarProps) {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/ping-pong.png" alt="ping-pong" width={32} height={32} className="rounded-lg" />
+            <Image src="/ping-pong.png" alt="ping-pong" width={32} height={32} className="rounded-lg" style={{ width: "auto", height: "auto" }} />
             <span className="text-xl font-bold text-blue-600 hidden sm:inline">ping-pong</span>
           </Link>
 
