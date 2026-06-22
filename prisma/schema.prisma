@@ -29,20 +29,19 @@ model Monitor {
   userId            String
   serviceName       String
   targetUrl         String
-  pingIntervalSecs  Int        @default(60)
+  // 3-Mode Scheduling Engine
+  scheduleMode      String     @default("RECURRING")
+  pingIntervalSecs  Int?
   timeoutMs         Int        @default(10000)
+  activeDays        String?
+  executeTime       String?
+  executeDate       DateTime?
+  // Status & lifecycle
   isActive          Boolean    @default(true)
+  status            String     @default("ACTIVE")
+  isCompleted       Boolean    @default(false)
   costPerPing       Float      @default(0.01389)
   lastPingedAt      DateTime?
-  startsAt          DateTime?
-  endsAt            DateTime?
-  isOneOff          Boolean    @default(false)
-  isCompleted       Boolean    @default(false)
-  // New fields for status hero banner and scheduling
-  status            String     @default("ACTIVE")
-  scheduleType      String     @default("INTERVAL")
-  activeDays        String     @default("")
-  executeTime       String     @default("")
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
