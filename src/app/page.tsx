@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import FAQ from "@/components/ui/FAQ";
 
 export default function LandingPage() {
   return (
@@ -147,6 +148,13 @@ export default function LandingPage() {
             <Link href="/dashboard" className="btn-primary text-lg px-8 py-3">
               Start Free Today
             </Link>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="bg-gray-50 py-16">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <FAQ />
           </div>
         </section>
       </main>
