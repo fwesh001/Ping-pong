@@ -4,6 +4,10 @@ import "@/styles/globals.css";
 export const metadata: Metadata = {
   title: "ping-pong | Uptime Monitoring",
   description: "Monitor your web services with ping-pong. Simple, reliable uptime tracking.",
+  icons: {
+    icon: "/ping-pong_FAV-icon.png",
+    apple: "/ping-pong_FAV-icon.png",
+  },
 };
 
 export default function RootLayout({
