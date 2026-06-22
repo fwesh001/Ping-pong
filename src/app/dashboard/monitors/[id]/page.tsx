@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import StatusHeroBanner from "@/components/ui/StatusHeroBanner";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import {
   CheckCircle2, XCircle, Clock, AlertTriangle, Pause, Play,
@@ -19,6 +20,7 @@ interface MonitorDetail {
   pingInterval: number;
   timeoutMs: number;
   isActive: boolean;
+  status: string;
   isOneOff: boolean;
   isCompleted: boolean;
   startsAt: string | null;
@@ -27,6 +29,9 @@ interface MonitorDetail {
   lastChecked: string;
   uptime: number;
   createdAt: string;
+  scheduleType: string;
+  activeDays: string;
+  executeTime: string;
 }
 
 interface Analytics {
@@ -64,6 +69,7 @@ export default function MonitorDetailPage() {
   const [creditBalance, setCreditBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toggling, setToggling] = useState(false);
 
   // Edit state
   const [editName, setEditName] = useState("");
@@ -119,6 +125,26 @@ export default function MonitorDetailPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  /* ---- Status Hero Toggle ---- */
+  const handleStatusToggle = async () => {
+    setToggling(true);
+    try {
+      const res = await fetch(`/api/monitors/toggle?id=${monitorId}`, { method: "POST" });
+      if (!res.ok) throw new Error("Failed to toggle status");
+      const data = await res.json();
+      // Optimistic update
+      setMonitor((prev) =>
+        prev
+          ? { ...prev, isActive: data.monitor.isActive, status: data.monitor.status }
+          : prev
+      );
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setToggling(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -161,13 +187,20 @@ export default function MonitorDetailPage() {
       const res = await fetch(`/api/monitors?id=${monitorId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: true }),
+        body: JSON.stringify({ isActive: true, status: "ACTIVE" }),
       });
       if (!res.ok) throw new Error("Failed to resume");
       await fetchData();
     } catch (err: any) {
       alert(err.message);
     }
+  };
+
+  // Derive display status for the hero banner
+  const getDisplayStatus = (): "ACTIVE" | "PAUSED" | "DOWN" => {
+    if (!monitor) return "PAUSED";
+    if (monitor.status === "DOWN") return "DOWN";
+    return monitor.isActive ? "ACTIVE" : "PAUSED";
   };
 
   const hasChanges = monitor && (
@@ -201,7 +234,7 @@ export default function MonitorDetailPage() {
           </button>
 
           {/* Header */}
-          <div className="flex items-start justify-between mb-8">
+          <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
                 {monitor.serviceName}
@@ -238,6 +271,15 @@ export default function MonitorDetailPage() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* ===== STATUS HERO BANNER ===== */}
+          <div className="mb-8">
+            <StatusHeroBanner
+              status={getDisplayStatus()}
+              onToggle={handleStatusToggle}
+              toggling={toggling}
+            />
           </div>
 
           {/* Analytics Cards */}
