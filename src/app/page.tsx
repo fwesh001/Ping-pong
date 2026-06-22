@@ -2,14 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FAQ from "@/components/ui/FAQ";
+import { Network, Wallet, LineChart, CalendarCheck } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <>
-      <Navbar creditBalance={0} />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
@@ -33,7 +32,6 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
             <div className="grid md:grid-cols-3 gap-8">
-              {/* Step 1 */}
               <div className="card text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                   1
@@ -45,7 +43,6 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Step 2 */}
               <div className="card text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                   2
@@ -57,7 +54,6 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Step 3 */}
               <div className="card text-center">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                   3
@@ -81,8 +77,8 @@ export default function LandingPage() {
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                    ✓
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100 text-blue-600">
+                    <Network className="w-6 h-6" />
                   </div>
                 </div>
                 <div>
@@ -95,8 +91,8 @@ export default function LandingPage() {
 
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                    ✓
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-green-100 text-green-600">
+                    <Wallet className="w-6 h-6" />
                   </div>
                 </div>
                 <div>
@@ -109,8 +105,8 @@ export default function LandingPage() {
 
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                    ✓
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-purple-100 text-purple-600">
+                    <LineChart className="w-6 h-6" />
                   </div>
                 </div>
                 <div>
@@ -123,8 +119,8 @@ export default function LandingPage() {
 
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white">
-                    ✓
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-orange-100 text-orange-600">
+                    <CalendarCheck className="w-6 h-6" />
                   </div>
                 </div>
                 <div>
