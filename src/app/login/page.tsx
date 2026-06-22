@@ -66,7 +66,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-4">
-            <Image src="/ping-pong.png" alt="ping-pong" width={64} height={64} className="rounded-xl mx-auto" />
+            <Image src="/ping-pong.png" alt="ping-pong" width={64} height={64} className="rounded-xl mx-auto" style={{ width: "auto", height: "auto" }} />
           </Link>
           <h2 className="text-2xl font-bold text-gray-900">
             Welcome back
