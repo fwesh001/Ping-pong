@@ -126,7 +126,7 @@ export default function DashboardPage() {
               <MonitorList monitors={monitors} onToggle={handleToggleMonitor} onDelete={(id) => { const m = monitors.find((x) => x.id === id); if (m) setDeleteTarget({ id, name: m.serviceName }); }} />
             ) : (
               <div className="card text-center py-16">
-                <Image src="/ping-pong.png" alt="ping-pong" width={80} height={80} className="rounded-xl mx-auto mb-6 opacity-40" />
+                <Image src="/ping-pong.png" alt="ping-pong" width={80} height={80} className="rounded-xl mx-auto mb-6 opacity-40" style={{ width: "auto", height: "auto" }} />
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">No monitors yet</h3>
                 <p className="text-gray-500 mb-6 text-sm">Start monitoring your services by creating your first monitor.</p>
                 <button onClick={() => setShowAddForm(true)} className="btn-primary">Create your first monitor</button>
