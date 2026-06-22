@@ -97,6 +97,9 @@ export default function PingerForm({
       startsAt: isScheduled && startsAt ? new Date(startsAt).toISOString() : null,
       endsAt: isScheduled && endsAt ? new Date(endsAt).toISOString() : null,
       costPerPing,
+      scheduleType: isScheduled && isOneOff ? "ONCE" : "INTERVAL",
+      activeDays: "",
+      executeTime: "",
     });
   };
 
