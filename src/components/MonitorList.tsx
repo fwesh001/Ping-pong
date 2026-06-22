@@ -2,6 +2,20 @@
 
 import React from "react";
 import Link from "next/link";
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  HelpCircle,
+  Pause,
+  Play,
+  Trash2,
+  ExternalLink,
+  Timer,
+  Zap,
+  CalendarClock,
+  CheckCheck,
+} from "lucide-react";
 
 interface Monitor {
   id: string;
@@ -16,6 +30,8 @@ interface Monitor {
   isCompleted: boolean;
   costPerPing: number;
   avgResponseTimeMs: number | null;
+  startsAt: string | null;
+  createdAt: string;
 }
 
 interface MonitorListProps {
@@ -24,52 +40,71 @@ interface MonitorListProps {
   onDelete: (id: string) => void;
 }
 
-export default function MonitorList({
-  monitors,
-  onToggle,
-  onDelete,
-}: MonitorListProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "success":
-        return "bg-green-100 text-green-800";
-      case "failure":
-        return "bg-red-100 text-red-800";
-      case "timeout":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+function PingStatusBadge({ status }: { status: string }) {
+  const config: Record<string, { icon: React.ReactNode; cls: string; label: string }> = {
+    success: { icon: <CheckCircle2 className="w-3.5 h-3.5" />, cls: "bg-green-100 text-green-800", label: "Success" },
+    failure: { icon: <XCircle className="w-3.5 h-3.5" />, cls: "bg-red-100 text-red-800", label: "Failure" },
+    timeout: { icon: <Clock className="w-3.5 h-3.5" />, cls: "bg-yellow-100 text-yellow-800", label: "Timeout" },
+    unknown: { icon: <HelpCircle className="w-3.5 h-3.5" />, cls: "bg-gray-100 text-gray-600", label: "Unknown" },
   };
+  const c = config[status] || config.unknown;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${c.cls}`}>
+      {c.icon} {c.label}
+    </span>
+  );
+}
 
-  const getStatusText = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
+function MonitorStateBadge({ isActive, isOneOff, isCompleted, startsAt }: { isActive: boolean; isOneOff: boolean; isCompleted: boolean; startsAt: string | null }) {
+  const isScheduled = startsAt && new Date(startsAt) > new Date();
 
+  if (isCompleted) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <CheckCheck className="w-3.5 h-3.5" /> Completed
+      </span>
+    );
+  }
+  if (isScheduled) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        <CalendarClock className="w-3.5 h-3.5" /> Scheduled
+      </span>
+    );
+  }
+  if (!isActive) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+        <Pause className="w-3.5 h-3.5" /> Paused
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+      <Play className="w-3.5 h-3.5" /> Active
+    </span>
+  );
+}
+
+export default function MonitorList({ monitors, onToggle, onDelete }: MonitorListProps) {
   return (
     <div className="space-y-4">
       {monitors.map((monitor) => (
         <div key={monitor.id} className="card hover:shadow-md transition-shadow">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Left: Service Info */}
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {monitor.serviceName}
-                </h3>
-                <span
-                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                    monitor.status
-                  )}`}
-                >
-                  {getStatusText(monitor.status)}
-                </span>
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <h3 className="text-lg font-semibold text-gray-900">{monitor.serviceName}</h3>
+                <PingStatusBadge status={monitor.status} />
+                <MonitorStateBadge isActive={monitor.isActive} isOneOff={monitor.isOneOff} isCompleted={monitor.isCompleted} startsAt={monitor.startsAt} />
+                {monitor.isOneOff && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                    <Zap className="w-3 h-3" /> One-off
+                  </span>
+                )}
               </div>
-              <p className="text-sm text-gray-600 truncate mb-3">
-                {monitor.targetUrl}
-              </p>
+              <p className="text-sm text-gray-600 truncate mb-3 font-mono">{monitor.targetUrl}</p>
 
-              {/* Grid of details */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 uppercase font-medium">Last Checked</p>
@@ -84,7 +119,9 @@ export default function MonitorList({
                   <p className="text-sm font-medium text-gray-900">{monitor.avgResponseTimeMs ? `${monitor.avgResponseTimeMs}ms` : "—"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-medium">Interval</p>
+                  <p className="text-xs text-gray-500 uppercase font-medium flex items-center gap-1">
+                    <Timer className="w-3 h-3" /> Interval
+                  </p>
                   <p className="text-sm font-medium text-gray-900">{monitor.pingInterval}s</p>
                 </div>
                 <div>
@@ -92,38 +129,32 @@ export default function MonitorList({
                   <p className="text-sm font-medium text-gray-900">{monitor.costPerPing.toFixed(5)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase font-medium">Status</p>
-                  <div className="flex items-center gap-1.5">
-                    <span className={`text-sm font-medium ${monitor.isActive ? "text-green-600" : monitor.isCompleted ? "text-purple-600" : "text-gray-500"}`}>
-                      {monitor.isActive ? "Active" : monitor.isCompleted ? "Completed" : "Paused"}
-                    </span>
-                    {monitor.isOneOff && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">1x</span>}
-                  </div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Created</p>
+                  <p className="text-sm font-medium text-gray-900">{new Date(monitor.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
             </div>
 
-            {/* Right: Actions */}
             <div className="flex items-center gap-2 md:flex-col">
               <Link
                 href={`/dashboard/monitors/${monitor.id}`}
-                className="px-4 py-2 rounded-lg font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-center"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
               >
-                View Details
+                <ExternalLink className="w-3.5 h-3.5" /> Details
               </Link>
               <button
                 onClick={() => onToggle(monitor.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                   monitor.isActive ? "btn-secondary" : "bg-blue-100 text-blue-700 hover:bg-blue-200"
                 }`}
               >
-                {monitor.isActive ? "Pause" : "Resume"}
+                {monitor.isActive ? <><Pause className="w-3.5 h-3.5" /> Pause</> : <><Play className="w-3.5 h-3.5" /> Resume</>}
               </button>
               <button
                 onClick={() => onDelete(monitor.id)}
-                className="px-4 py-2 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors text-sm"
               >
-                Delete
+                <Trash2 className="w-3.5 h-3.5" /> Delete
               </button>
             </div>
           </div>
