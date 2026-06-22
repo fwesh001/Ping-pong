@@ -2,9 +2,15 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import {
+  CheckCircle2, XCircle, Clock, AlertTriangle, Pause, Play,
+  Timer, Trash2, Save, X, CalendarClock, Zap, ExternalLink,
+  BarChart3, Activity, Globe, Settings, ChevronLeft,
+} from "lucide-react";
 
 interface MonitorDetail {
   id: string;
@@ -39,6 +45,13 @@ interface Incident {
   checkedAt: string;
 }
 
+interface TimelineLog {
+  id: string;
+  status: string;
+  responseTimeMs: number | null;
+  checkedAt: string;
+}
+
 export default function MonitorDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -47,6 +60,7 @@ export default function MonitorDetailPage() {
   const [monitor, setMonitor] = useState<MonitorDetail | null>(null);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [timelineLogs, setTimelineLogs] = useState<TimelineLog[]>([]);
   const [creditBalance, setCreditBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +94,13 @@ export default function MonitorDetailPage() {
       setMonitor(monData.monitor);
       setAnalytics(monData.analytics);
       setIncidents(monData.recentIncidents || []);
+
+      // Fetch timeline logs (last 50 pings)
+      const timelineRes = await fetch(`/api/logs?monitorId=${monitorId}&limit=50`);
+      if (timelineRes.ok) {
+        const timelineData = await timelineRes.json();
+        setTimelineLogs(timelineData.logs || []);
+      }
 
       // Initialize edit state
       setEditName(monData.monitor.serviceName);
@@ -135,6 +156,20 @@ export default function MonitorDetailPage() {
     }
   };
 
+  const handleResume = async () => {
+    try {
+      const res = await fetch(`/api/monitors?id=${monitorId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: true }),
+      });
+      if (!res.ok) throw new Error("Failed to resume");
+      await fetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   const hasChanges = monitor && (
     editName !== monitor.serviceName ||
     editInterval !== monitor.pingInterval ||
@@ -162,21 +197,45 @@ export default function MonitorDetailPage() {
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Breadcrumb */}
           <button onClick={() => router.push("/dashboard")} className="text-blue-600 hover:underline text-sm mb-4 inline-flex items-center gap-1">
-            ← Back to Dashboard
+            <ChevronLeft className="w-4 h-4" /> Back to Dashboard
           </button>
 
           {/* Header */}
           <div className="flex items-start justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{monitor.serviceName}</h1>
-              <p className="text-gray-500 mt-1 font-mono text-sm break-all">{monitor.targetUrl}</p>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                {monitor.serviceName}
+                {monitor.isOneOff && <Zap className="w-5 h-5 text-purple-500" />}
+              </h1>
+              <p className="text-gray-500 mt-1 font-mono text-sm break-all flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5" /> {monitor.targetUrl}
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${monitor.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
-                {monitor.isActive ? "Active" : monitor.isCompleted ? "Completed" : "Paused"}
-              </span>
-              {monitor.isOneOff && (
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">One-off</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {monitor.isCompleted ? (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Completed
+                </span>
+              ) : monitor.startsAt && new Date(monitor.startsAt) > new Date() ? (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  <CalendarClock className="w-3.5 h-3.5" /> Scheduled
+                </span>
+              ) : monitor.isActive ? (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <Play className="w-3.5 h-3.5" /> Active
+                </span>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    <Pause className="w-3.5 h-3.5" /> Paused
+                  </span>
+                  <button
+                    onClick={handleResume}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                  >
+                    <Play className="w-3.5 h-3.5" /> Resume
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -185,27 +244,62 @@ export default function MonitorDetailPage() {
           {analytics && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium">Uptime (30d)</p>
+                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><CheckCircle2 className="w-3 h-3" /> Uptime (30d)</p>
                 <p className="text-3xl font-bold text-green-600 mt-1">{monitor.uptime.toFixed(1)}%</p>
               </div>
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium">Avg Response</p>
+                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><Timer className="w-3 h-3" /> Avg Response</p>
                 <p className="text-3xl font-bold text-blue-600 mt-1">{analytics.avgResponseTimeMs ? `${analytics.avgResponseTimeMs}ms` : "—"}</p>
               </div>
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium">Total Pings</p>
+                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><BarChart3 className="w-3 h-3" /> Total Pings</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">{analytics.totalPings30d}</p>
               </div>
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium">Incidents</p>
+                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><AlertTriangle className="w-3 h-3" /> Incidents</p>
                 <p className="text-3xl font-bold text-red-600 mt-1">{analytics.failurePings30d}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Uptime Timeline Grid */}
+          {timelineLogs.length > 0 && (
+            <div className="card mb-8">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-blue-600" /> Uptime Timeline
+                <span className="text-xs font-normal text-gray-500 ml-2">Last {timelineLogs.length} pings</span>
+              </h2>
+              <div className="flex flex-wrap gap-1">
+                {timelineLogs.map((log) => {
+                  const color = log.status === "success"
+                    ? "bg-green-500"
+                    : log.status === "timeout"
+                    ? "bg-yellow-400"
+                    : log.status === "failure"
+                    ? "bg-red-500"
+                    : "bg-gray-300";
+                  return (
+                    <div
+                      key={log.id}
+                      className={`w-3 h-8 rounded-sm ${color} cursor-pointer hover:opacity-80 transition-opacity`}
+                      title={`${log.status} — ${log.responseTimeMs ? `${log.responseTimeMs}ms` : "—"} — ${new Date(log.checkedAt).toLocaleString()}`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-green-500 inline-block" /> Success</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-yellow-400 inline-block" /> Timeout</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> Failure</span>
               </div>
             </div>
           )}
 
           {/* Configuration Form */}
           <div className="card mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Configuration</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-gray-600" /> Configuration
+            </h2>
             <div className="space-y-5">
               {/* Name */}
               <div>
@@ -285,18 +379,18 @@ export default function MonitorDetailPage() {
               <div className="flex justify-between pt-4 border-t border-gray-200">
                 <button
                   onClick={() => setConfirmAction("delete")}
-                  className="px-4 py-2 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
                 >
-                  Delete Monitor
+                  <Trash2 className="w-3.5 h-3.5" /> Delete Monitor
                 </button>
                 <div className="flex gap-3">
-                  <button onClick={() => router.push("/dashboard")} className="btn-secondary">Cancel</button>
+                  <button onClick={() => router.push("/dashboard")} className="btn-secondary inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5" /> Cancel</button>
                   <button
                     onClick={() => hasChanges ? setConfirmAction("save") : router.push("/dashboard")}
                     disabled={saving}
-                    className="btn-primary disabled:opacity-50"
+                    className="btn-primary disabled:opacity-50 inline-flex items-center gap-1.5"
                   >
-                    {saving ? "Saving..." : hasChanges ? "Save Changes" : "Done"}
+                    {saving ? <><Clock className="w-3.5 h-3.5 animate-spin" /> Saving...</> : hasChanges ? <><Save className="w-3.5 h-3.5" /> Save Changes</> : "Done"}
                   </button>
                 </div>
               </div>
@@ -305,7 +399,7 @@ export default function MonitorDetailPage() {
 
           {/* Recent Incidents */}
           <div className="card">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Incidents</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-red-500" /> Recent Incidents</h2>
             {incidents.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -336,7 +430,7 @@ export default function MonitorDetailPage() {
                 </table>
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">No incidents recorded in the last 30 days 🎉</p>
+              <p className="text-gray-500 text-center py-8 flex items-center justify-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-400" /> No incidents recorded in the last 30 days</p>
             )}
           </div>
         </div>
