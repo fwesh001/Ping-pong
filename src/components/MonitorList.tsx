@@ -31,7 +31,11 @@ interface Monitor {
   costPerPing: number;
   avgResponseTimeMs: number | null;
   startsAt: string | null;
+  endsAt: string | null;
   createdAt: string;
+  scheduleType: string;
+  activeDays: string;
+  executeTime: string;
 }
 
 interface MonitorListProps {
