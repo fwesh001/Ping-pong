@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       : null;
 
     // Less than 24 hours → reject
-    if (hoursSinceLastClaim !== null && hoursSinceLastClaim < 24) {
+    if (hoursSinceLastClaim !== null && lastClaimed && hoursSinceLastClaim < 24) {
       const nextClaimAt = new Date(lastClaimed.getTime() + HOURS_24);
       return NextResponse.json(
         {
