@@ -38,6 +38,11 @@ model Monitor {
   endsAt            DateTime?
   isOneOff          Boolean    @default(false)
   isCompleted       Boolean    @default(false)
+  // New fields for status hero banner and scheduling
+  status            String     @default("ACTIVE")
+  scheduleType      String     @default("INTERVAL")
+  activeDays        String     @default("")
+  executeTime       String     @default("")
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
