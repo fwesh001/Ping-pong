@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { DollarSign, Timer, Zap, CalendarClock, Clock, AlertTriangle, Info } from "lucide-react";
 
 const HOURLY_DRAIN = 0.8333;
 const ONE_OFF_FLAT_COST = 25.0;
@@ -104,8 +105,9 @@ export default function PingerForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {atMaxMonitors && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-          ⚠️ Maximum of {maxMonitors} active monitors reached. Pause or delete one to add more.
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          Maximum of {maxMonitors} active monitors reached. Pause or delete one to add more.
         </div>
       )}
 
@@ -200,11 +202,11 @@ export default function PingerForm({
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="radio" name="scheduleType" checked={!isOneOff} onChange={() => setIsOneOff(false)} className="text-blue-600" />
-                <span className="text-sm text-gray-700">Repeat on interval</span>
+                <span className="text-sm text-gray-700 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Repeat on interval</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="radio" name="scheduleType" checked={isOneOff} onChange={() => setIsOneOff(true)} className="text-purple-600" />
-                <span className="text-sm text-gray-700">Run once (25 credits)</span>
+                <span className="text-sm text-gray-700 flex items-center gap-1"><Zap className="w-3.5 h-3.5" /> Run once (25 credits)</span>
               </label>
             </div>
 
@@ -230,30 +232,35 @@ export default function PingerForm({
 
       {/* Cost Breakdown */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-3">💰 Cost Breakdown</h4>
+        <h4 className="text-sm font-semibold text-blue-900 mb-3 flex items-center gap-2">
+          <DollarSign className="w-4 h-4" /> Cost Breakdown
+        </h4>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-blue-700">Cost per ping</p>
+            <p className="text-blue-700 flex items-center gap-1"><DollarSign className="w-3 h-3" /> {isOneOff ? "Total cost" : "Cost per ping"}</p>
             <p className="font-bold text-blue-900">{costPerPing.toFixed(5)} credits</p>
           </div>
           <div>
-            <p className="text-blue-700">{isOneOff ? "Total cost" : "Pings per day"}</p>
-            <p className="font-bold text-blue-900">{isOneOff ? "25.0000" : pingsPerDay.toLocaleString()}</p>
+            <p className="text-blue-700 flex items-center gap-1">{isOneOff ? <Zap className="w-3 h-3" /> : <Timer className="w-3 h-3" />} {isOneOff ? "Type" : "Pings/day"}</p>
+            <p className="font-bold text-blue-900">{isOneOff ? "One-off (25cr)" : pingsPerDay.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-blue-700">{isOneOff ? "Type" : "Daily cost"}</p>
-            <p className="font-bold text-blue-900">{isOneOff ? "One-off" : `${dailyCost.toFixed(4)} credits/day`}</p>
+            <p className="text-blue-700 flex items-center gap-1"><CalendarClock className="w-3 h-3" /> {isOneOff ? "Flat fee" : "Daily cost"}</p>
+            <p className="font-bold text-blue-900">{isOneOff ? "25.0000 cr" : `${dailyCost.toFixed(4)} cr/day`}</p>
           </div>
           <div>
-            <p className="text-blue-700">100 credits last</p>
-            <p className="font-bold text-blue-900">
-              {daysUntilEmpty === Infinity ? "∞" : `~${daysUntilEmpty.toFixed(1)} days`}
-            </p>
+            <p className="text-blue-700 flex items-center gap-1"><Clock className="w-3 h-3" /> 100cr lasts</p>
+            <p className="font-bold text-blue-900">{daysUntilEmpty === Infinity ? "∞" : `~${daysUntilEmpty.toFixed(1)} days`}</p>
           </div>
         </div>
         {!isOneOff && (
-          <p className="text-xs text-blue-600 mt-3">
-            Formula: (0.8333 × {intervalSecs}s) ÷ 3600s = {costPerPing.toFixed(5)} credits/ping
+          <p className="text-xs text-blue-600 mt-3 flex items-center gap-1">
+            <Info className="w-3 h-3" /> Formula: (0.8333 × {intervalSecs}s) ÷ 3600s = {costPerPing.toFixed(5)} credits/ping
+          </p>
+        )}
+        {isOneOff && (
+          <p className="text-xs text-purple-600 mt-3 flex items-center gap-1">
+            <Zap className="w-3 h-3" /> One-off: flat 25 credit charge, runs once then auto-completes
           </p>
         )}
       </div>
