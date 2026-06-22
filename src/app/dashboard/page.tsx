@@ -25,6 +25,9 @@ interface Monitor {
   startsAt: string | null;
   endsAt: string | null;
   createdAt: string;
+  scheduleType: string;
+  activeDays: string;
+  executeTime: string;
 }
 
 export default function DashboardPage() {
