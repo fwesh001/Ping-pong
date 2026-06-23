@@ -462,40 +462,6 @@ export default function MonitorsPage() {
             {formErrors.url && <p className="text-red-600 text-xs mt-1">{formErrors.url}</p>}
           </div>
 
-          {/* Interval + Timeout */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="drawerInterval" className="block text-sm font-medium text-gray-700 mb-1">
-                Ping Interval (sec)
-              </label>
-              <input
-                id="drawerInterval"
-                type="number"
-                value={formInterval}
-                onChange={(e) => { setFormInterval(Number(e.target.value)); setFormErrors((p) => { const n = { ...p }; delete n.interval; return n; }); }}
-                min={60}
-                max={3600}
-                className={`input-field ${formErrors.interval ? "border-red-500" : ""}`}
-              />
-              {formErrors.interval && <p className="text-red-600 text-xs mt-1">{formErrors.interval}</p>}
-            </div>
-            <div>
-              <label htmlFor="drawerTimeout" className="block text-sm font-medium text-gray-700 mb-1">
-                Timeout (ms)
-              </label>
-              <input
-                id="drawerTimeout"
-                type="number"
-                value={formTimeout}
-                onChange={(e) => setFormTimeout(Number(e.target.value))}
-                min={1000}
-                max={60000}
-                step={500}
-                className="input-field"
-              />
-            </div>
-          </div>
-
           {/* Scheduling Tabs */}
           <div className="border-t border-gray-200 pt-5">
             <h3 className="text-sm font-medium text-gray-900 mb-1">Schedule Configuration</h3>
