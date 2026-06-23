@@ -460,7 +460,7 @@ export default function MonitorsPage() {
               value={formUrl}
               onChange={(e) => { setFormUrl(e.target.value); setFormErrors((p) => { const n = { ...p }; delete n.url; return n; }); }}
               placeholder="https://api.example.com/health"
-              className={`input-field ${formErrors.url ? "border-red-500" : ""}`}
+              className={`input-field ${formErrors.url ? "border-rose-500" : ""}`}
             />
             {formErrors.url && <p className="text-red-600 text-xs mt-1">{formErrors.url}</p>}
           </div>
