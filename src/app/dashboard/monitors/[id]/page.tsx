@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StatusHeroBanner from "@/components/ui/StatusHeroBanner";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import SchedulingTabs, { type ThreeModeFormState } from "@/components/ui/SchedulingTabs";
 import {
   CheckCircle2, XCircle, Clock, AlertTriangle, Pause, Play,
   Timer, Trash2, Save, X, CalendarClock, Zap, ExternalLink,
@@ -73,12 +74,15 @@ export default function MonitorDetailPage() {
 
   // Edit state
   const [editName, setEditName] = useState("");
-  const [editInterval, setEditInterval] = useState(60);
-  const [editTimeout, setEditTimeout] = useState(10000);
-  const [editStartsAt, setEditStartsAt] = useState("");
-  const [editEndsAt, setEditEndsAt] = useState("");
-  const [isScheduled, setIsScheduled] = useState(false);
-  const [isOneOff, setIsOneOff] = useState(false);
+  const [editSchedule, setEditSchedule] = useState<ThreeModeFormState>({
+    scheduleMode: "RECURRING",
+    pingIntervalSecs: 60,
+    activeDays: [],
+    scheduledTime: "09:00",
+    executeDate: "",
+    oneOffTime: "09:00",
+    timeoutMs: 10000,
+  });
 
   // Confirmation modal
   const [confirmAction, setConfirmAction] = useState<"delete" | "save" | null>(null);
@@ -110,12 +114,16 @@ export default function MonitorDetailPage() {
 
       // Initialize edit state
       setEditName(monData.monitor.serviceName);
-      setEditInterval(monData.monitor.pingInterval);
-      setEditTimeout(monData.monitor.timeoutMs);
-      setEditStartsAt(monData.monitor.startsAt ? monData.monitor.startsAt.slice(0, 16) : "");
-      setEditEndsAt(monData.monitor.endsAt ? monData.monitor.endsAt.slice(0, 16) : "");
-      setIsScheduled(!!monData.monitor.startsAt);
-      setIsOneOff(monData.monitor.isOneOff);
+      const mode = (monData.monitor.scheduleMode as string) || "RECURRING";
+      setEditSchedule({
+        scheduleMode: mode as ThreeModeFormState["scheduleMode"],
+        pingIntervalSecs: monData.monitor.pingInterval || 60,
+        activeDays: monData.monitor.activeDays ? monData.monitor.activeDays.split(",").filter(Boolean) : [],
+        scheduledTime: monData.monitor.executeTime || "09:00",
+        executeDate: monData.monitor.executeDate ? monData.monitor.executeDate.slice(0, 10) : "",
+        oneOffTime: monData.monitor.executeTime || "09:00",
+        timeoutMs: monData.monitor.timeoutMs || 10000,
+      });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -150,12 +158,18 @@ export default function MonitorDetailPage() {
     try {
       const body: Record<string, any> = {
         serviceName: editName,
-        pingInterval: editInterval,
-        timeoutMs: editTimeout,
-        isOneOff,
-        startsAt: isScheduled && editStartsAt ? new Date(editStartsAt).toISOString() : null,
-        endsAt: isScheduled && editEndsAt ? new Date(editEndsAt).toISOString() : null,
+        scheduleMode: editSchedule.scheduleMode,
+        timeoutMs: editSchedule.timeoutMs,
       };
+      if (editSchedule.scheduleMode === "RECURRING") {
+        body.pingIntervalSecs = editSchedule.pingIntervalSecs;
+      } else if (editSchedule.scheduleMode === "SCHEDULED") {
+        body.activeDays = editSchedule.activeDays.join(",");
+        body.executeTime = editSchedule.scheduledTime;
+      } else if (editSchedule.scheduleMode === "ONEOFF") {
+        body.executeDate = editSchedule.executeDate ? new Date(editSchedule.executeDate).toISOString() : null;
+        body.executeTime = editSchedule.oneOffTime;
+      }
 
       const res = await fetch(`/api/monitors?id=${monitorId}`, {
         method: "PATCH",
@@ -205,10 +219,9 @@ export default function MonitorDetailPage() {
 
   const hasChanges = monitor && (
     editName !== monitor.serviceName ||
-    editInterval !== monitor.pingInterval ||
-    editTimeout !== monitor.timeoutMs ||
-    isOneOff !== monitor.isOneOff ||
-    isScheduled !== !!monitor.startsAt
+    editSchedule.pingIntervalSecs !== monitor.pingInterval ||
+    editSchedule.timeoutMs !== monitor.timeoutMs ||
+    editSchedule.scheduleMode !== monitor.scheduleMode
   );
 
   if (loading) {
