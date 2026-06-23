@@ -82,21 +82,20 @@ export async function GET(req: NextRequest) {
         id: monitor.id,
         serviceName: monitor.serviceName,
         targetUrl: monitor.targetUrl,
+        scheduleMode: monitor.scheduleMode,
         pingInterval: monitor.pingIntervalSecs,
         timeoutMs: monitor.timeoutMs,
         isActive: monitor.isActive,
         status: monitor.status,
-        isOneOff: monitor.isOneOff,
+
         isCompleted: monitor.isCompleted,
-        startsAt: monitor.startsAt?.toISOString() || null,
-        endsAt: monitor.endsAt?.toISOString() || null,
         costPerPing: Number(monitor.costPerPing),
+        activeDays: monitor.activeDays,
+        executeTime: monitor.executeTime,
+        executeDate: monitor.executeDate?.toISOString() || null,
         lastChecked,
         uptime: Math.round(uptime * 10) / 10,
         createdAt: monitor.createdAt.toISOString(),
-        scheduleType: monitor.scheduleType,
-        activeDays: monitor.activeDays,
-        executeTime: monitor.executeTime,
       },
       analytics: {
         avgResponseTimeMs: avgResponseTime._avg.responseTimeMs
@@ -153,22 +152,22 @@ export async function GET(req: NextRequest) {
         id: m.id,
         serviceName: m.serviceName,
         targetUrl: m.targetUrl,
+        scheduleMode: m.scheduleMode,
         pingInterval: m.pingIntervalSecs,
         isActive: m.isActive,
         status: m.status,
         isOneOff: m.isOneOff,
         isCompleted: m.isCompleted,
-        startsAt: m.startsAt?.toISOString() || null,
-        endsAt: m.endsAt?.toISOString() || null,
         costPerPing: Number(m.costPerPing),
+        timeoutMs: m.timeoutMs,
+        activeDays: m.activeDays,
+        executeTime: m.executeTime,
+        executeDate: m.executeDate?.toISOString() || null,
         avgResponseTimeMs: avgResp._avg.responseTimeMs ? Math.round(avgResp._avg.responseTimeMs) : null,
         lastPingStatus: m.pingLogs[0]?.status || "unknown",
         lastChecked,
         uptime: Math.round(uptime * 10) / 10,
         createdAt: m.createdAt.toISOString(),
-        scheduleType: m.scheduleType,
-        activeDays: m.activeDays,
-        executeTime: m.executeTime,
       };
     })
   );
@@ -185,7 +184,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { serviceName, targetUrl, pingInterval, timeoutMs, isOneOff = false, startsAt, endsAt, scheduleType = "INTERVAL", activeDays = "", executeTime = "" } = body;
+    const { 
+      serviceName, 
+      targetUrl, 
+      scheduleMode = "RECURRING",
+      pingIntervalSecs, 
+      timeoutMs = 10000,
+      activeDays = "",
+      executeTime = "",
+      executeDate = null
+    } = body;
 
     if (!serviceName?.trim()) {
       return NextResponse.json({ error: "Service name is required" }, { status: 400 });
@@ -195,9 +203,19 @@ export async function POST(req: NextRequest) {
     }
     try { new URL(targetUrl); } catch { return NextResponse.json({ error: "Invalid URL format" }, { status: 400 }); }
 
-    const interval = Number(pingInterval);
-    if (interval < MIN_INTERVAL_SECS || interval > 3600) {
-      return NextResponse.json({ error: `Ping interval must be between ${MIN_INTERVAL_SECS} and 3600 seconds` }, { status: 400 });
+    // Validate based on schedule mode
+    if (scheduleMode === "RECURRING") {
+      if (!pingIntervalSecs || pingIntervalSecs < MIN_INTERVAL_SECS || pingIntervalSecs > 3600) {
+        return NextResponse.json({ error: `Ping interval must be between ${MIN_INTERVAL_SECS} and 3600 seconds` }, { status: 400 });
+      }
+    } else if (scheduleMode === "SCHEDULED") {
+      if (!activeDays) {
+        return NextResponse.json({ error: "Active days are required for scheduled monitors" }, { status: 400 });
+      }
+    } else if (scheduleMode === "ONEOFF") {
+      if (!executeDate) {
+        return NextResponse.json({ error: "Execution date is required for one-off monitors" }, { status: 400 });
+      }
     }
 
     const activeCount = await prisma.monitor.count({
@@ -207,25 +225,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Maximum of ${MAX_ACTIVE_MONITORS} active monitors reached.` }, { status: 403 });
     }
 
-    const costPerPing = isOneOff ? ONE_OFF_FLAT_COST : calculatePingCost(interval);
+    const isOneOff = scheduleMode === "ONEOFF";
+    const costPerPing = isOneOff ? ONE_OFF_FLAT_COST : calculatePingCost(pingIntervalSecs || MIN_INTERVAL_SECS);
 
     const monitor = await prisma.monitor.create({
       data: {
         userId: auth.user.id,
         serviceName: serviceName.trim(),
         targetUrl: targetUrl.trim(),
-        pingIntervalSecs: interval,
-        timeoutMs: timeoutMs ? Number(timeoutMs) : 10000,
+        scheduleMode,
+        pingIntervalSecs: scheduleMode === "RECURRING" ? pingIntervalSecs : null,
+        timeoutMs,
+        activeDays: scheduleMode === "SCHEDULED" ? activeDays : null,
+        executeTime: executeTime || null,
+        executeDate: executeDate ? new Date(executeDate) : null,
         costPerPing,
         isActive: true,
         status: "ACTIVE",
-        isOneOff: Boolean(isOneOff),
+        isOneOff,
         isCompleted: false,
-        startsAt: startsAt ? new Date(startsAt) : null,
-        endsAt: endsAt ? new Date(endsAt) : null,
-        scheduleType: scheduleType || "INTERVAL",
-        activeDays: activeDays || "",
-        executeTime: executeTime || "",
       },
     });
 
@@ -235,20 +253,20 @@ export async function POST(req: NextRequest) {
         id: monitor.id,
         serviceName: monitor.serviceName,
         targetUrl: monitor.targetUrl,
+        scheduleMode: monitor.scheduleMode,
         pingInterval: monitor.pingIntervalSecs,
         isActive: monitor.isActive,
         status: monitor.status,
         isOneOff: monitor.isOneOff,
         costPerPing: Number(monitor.costPerPing),
-        startsAt: monitor.startsAt?.toISOString() || null,
-        endsAt: monitor.endsAt?.toISOString() || null,
+        timeoutMs: monitor.timeoutMs,
+        activeDays: monitor.activeDays,
+        executeTime: monitor.executeTime,
+        executeDate: monitor.executeDate?.toISOString() || null,
         lastPingStatus: "unknown",
         lastChecked: "Never",
         uptime: 0,
         createdAt: monitor.createdAt.toISOString(),
-        scheduleType: monitor.scheduleType,
-        activeDays: monitor.activeDays,
-        executeTime: monitor.executeTime,
       },
     }, { status: 201 });
   } catch (error: any) {
@@ -279,8 +297,9 @@ export async function PATCH(req: NextRequest) {
       try { new URL(body.targetUrl); } catch { return NextResponse.json({ error: "Invalid URL format" }, { status: 400 }); }
       updateData.targetUrl = body.targetUrl.trim();
     }
-    if (body.pingInterval !== undefined) {
-      const interval = Number(body.pingInterval);
+    if (body.scheduleMode !== undefined) updateData.scheduleMode = String(body.scheduleMode);
+    if (body.pingIntervalSecs !== undefined) {
+      const interval = Number(body.pingIntervalSecs);
       if (interval < MIN_INTERVAL_SECS || interval > 3600) {
         return NextResponse.json({ error: `Ping interval must be between ${MIN_INTERVAL_SECS} and 3600 seconds` }, { status: 400 });
       }
@@ -290,21 +309,19 @@ export async function PATCH(req: NextRequest) {
     if (body.timeoutMs !== undefined) updateData.timeoutMs = Number(body.timeoutMs);
     if (body.isActive !== undefined) updateData.isActive = Boolean(body.isActive);
     if (body.status !== undefined) updateData.status = String(body.status);
-    if (body.startsAt !== undefined) updateData.startsAt = body.startsAt ? new Date(body.startsAt) : null;
-    if (body.endsAt !== undefined) updateData.endsAt = body.endsAt ? new Date(body.endsAt) : null;
-    if (body.scheduleType !== undefined) updateData.scheduleType = String(body.scheduleType);
     if (body.activeDays !== undefined) updateData.activeDays = String(body.activeDays);
     if (body.executeTime !== undefined) updateData.executeTime = String(body.executeTime);
+    if (body.executeDate !== undefined) updateData.executeDate = body.executeDate ? new Date(body.executeDate) : null;
 
     const updated = await prisma.monitor.update({ where: { id: monitorId }, data: updateData });
     return NextResponse.json({
       message: "Monitor updated",
       monitor: {
         id: updated.id, serviceName: updated.serviceName, targetUrl: updated.targetUrl,
-        pingInterval: updated.pingIntervalSecs, isActive: updated.isActive, status: updated.status, isOneOff: updated.isOneOff,
+        scheduleMode: updated.scheduleMode, pingInterval: updated.pingIntervalSecs, isActive: updated.isActive, status: updated.status, isOneOff: updated.isOneOff,
         costPerPing: Number(updated.costPerPing),
-        startsAt: updated.startsAt?.toISOString() || null, endsAt: updated.endsAt?.toISOString() || null,
-        scheduleType: updated.scheduleType, activeDays: updated.activeDays, executeTime: updated.executeTime,
+        timeoutMs: updated.timeoutMs,
+        activeDays: updated.activeDays, executeTime: updated.executeTime, executeDate: updated.executeDate?.toISOString() || null,
       },
     });
   } catch (error: any) {
