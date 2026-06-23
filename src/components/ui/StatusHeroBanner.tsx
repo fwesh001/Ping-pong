@@ -45,8 +45,8 @@ export default function StatusHeroBanner({ status, onToggle, toggling }: StatusH
   return (
     <div className={`${c.bg} rounded-2xl p-6 md:p-8 text-slate-100 relative overflow-hidden`}> 
       {/* Background decorative circles */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-brand-cyan/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-brand-purple/10 rounded-full translate-y-1/2 -translate-x-1/2" />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -54,11 +54,11 @@ export default function StatusHeroBanner({ status, onToggle, toggling }: StatusH
             {/* Animated radar pulse for ACTIVE */}
             {c.showPulse && (
               <>
-                <span className="absolute inset-0 rounded-full bg-white/30 animate-ping" />
-                <span className="absolute inset-0 rounded-full bg-white/20 animate-pulse" />
+                <span className="absolute inset-0 rounded-full bg-brand-cyan/20 animate-ping" />
+                <span className="absolute inset-0 rounded-full bg-brand-cyan/10 animate-pulse" />
               </>
             )}
-            <div className="relative w-14 h-14 rounded-full bg-white/15 flex items-center justify-center backdrop-blur-sm">
+            <div className="relative w-14 h-14 rounded-full bg-slate-700/40 flex items-center justify-center backdrop-blur-sm">
               {c.icon}
             </div>
           </div>
