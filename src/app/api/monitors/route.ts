@@ -85,9 +85,9 @@ export async function GET(req: NextRequest) {
         scheduleMode: monitor.scheduleMode,
         pingInterval: monitor.pingIntervalSecs,
         timeoutMs: monitor.timeoutMs,
+        maxRetries: monitor.maxRetries,
         isActive: monitor.isActive,
         status: monitor.status,
-
         isCompleted: monitor.isCompleted,
         costPerPing: Number(monitor.costPerPing),
         activeDays: monitor.activeDays,
@@ -159,6 +159,7 @@ export async function GET(req: NextRequest) {
         isCompleted: m.isCompleted,
         costPerPing: Number(m.costPerPing),
         timeoutMs: m.timeoutMs,
+        maxRetries: m.maxRetries,
         activeDays: m.activeDays,
         executeTime: m.executeTime,
         executeDate: m.executeDate?.toISOString() || null,
@@ -189,6 +190,7 @@ export async function POST(req: NextRequest) {
       scheduleMode = "RECURRING",
       pingIntervalSecs, 
       timeoutMs = 10000,
+      maxRetries = 0,
       activeDays = "",
       executeTime = "",
       executeDate = null
@@ -235,6 +237,7 @@ export async function POST(req: NextRequest) {
         scheduleMode,
         pingIntervalSecs: scheduleMode === "RECURRING" ? pingIntervalSecs : null,
         timeoutMs,
+        maxRetries: Number(maxRetries),
         activeDays: scheduleMode === "SCHEDULED" ? activeDays : null,
         executeTime: executeTime || null,
         executeDate: executeDate ? new Date(executeDate) : null,
@@ -257,6 +260,7 @@ export async function POST(req: NextRequest) {
         status: monitor.status,
         costPerPing: Number(monitor.costPerPing),
         timeoutMs: monitor.timeoutMs,
+        maxRetries: monitor.maxRetries,
         activeDays: monitor.activeDays,
         executeTime: monitor.executeTime,
         executeDate: monitor.executeDate?.toISOString() || null,
@@ -309,6 +313,7 @@ export async function PATCH(req: NextRequest) {
     if (body.activeDays !== undefined) updateData.activeDays = String(body.activeDays);
     if (body.executeTime !== undefined) updateData.executeTime = String(body.executeTime);
     if (body.executeDate !== undefined) updateData.executeDate = body.executeDate ? new Date(body.executeDate) : null;
+    if (body.maxRetries !== undefined) updateData.maxRetries = Number(body.maxRetries);
 
     const updated = await prisma.monitor.update({ where: { id: monitorId }, data: updateData });
     return NextResponse.json({
@@ -318,6 +323,7 @@ export async function PATCH(req: NextRequest) {
         scheduleMode: updated.scheduleMode, pingInterval: updated.pingIntervalSecs, isActive: updated.isActive, status: updated.status,
         costPerPing: Number(updated.costPerPing),
         timeoutMs: updated.timeoutMs,
+        maxRetries: updated.maxRetries,
         activeDays: updated.activeDays, executeTime: updated.executeTime, executeDate: updated.executeDate?.toISOString() || null,
       },
     });
