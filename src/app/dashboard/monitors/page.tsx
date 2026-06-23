@@ -275,8 +275,8 @@ export default function MonitorsPage() {
           {/* Page Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Monitors</h1>
-              <p className="text-gray-500 mt-1">Manage and track all your service monitors</p>
+              <h1 className="text-3xl font-bold text-slate-100">Monitors</h1>
+              <p className="text-slate-400 mt-1">Manage and track all your service monitors</p>
             </div>
             <button
               onClick={() => setDrawerOpen(true)}
@@ -290,14 +290,14 @@ export default function MonitorsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <CreditDisplay balance={creditBalance} />
             <div className="card">
-              <h3 className="text-sm font-medium text-gray-500 uppercase">Active Monitors</h3>
-              <p className="text-4xl font-bold text-blue-600 mt-2">{activeMonitors.length}</p>
-              <p className="text-sm text-gray-600 mt-1">of {monitors.length} total</p>
+              <h3 className="text-sm font-medium text-slate-400 uppercase">Active Monitors</h3>
+              <p className="text-4xl font-bold text-brand-cyan mt-2">{activeMonitors.length}</p>
+              <p className="text-sm text-slate-400 mt-1">of {monitors.length} total</p>
             </div>
             <div className="card">
-              <h3 className="text-sm font-medium text-gray-500 uppercase">Avg Uptime</h3>
-              <p className="text-4xl font-bold text-green-600 mt-2">{avgUptime.toFixed(1)}%</p>
-              <p className="text-sm text-gray-600 mt-1">Last 30 days</p>
+              <h3 className="text-sm font-medium text-slate-400 uppercase">Avg Uptime</h3>
+              <p className="text-4xl font-bold text-emerald-400 mt-2">{avgUptime.toFixed(1)}%</p>
+              <p className="text-sm text-slate-400 mt-1">Last 30 days</p>
             </div>
           </div>
 
@@ -316,22 +316,22 @@ export default function MonitorsPage() {
                     {/* Domain + name */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold text-gray-900 truncate">{m.serviceName}</h3>
+                        <h3 className="text-base font-semibold text-slate-100 truncate">{m.serviceName}</h3>
                         {m.scheduleMode === "ONEOFF" && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-brand-purple">
                             <Zap className="w-2.5 h-2.5" /> One-off
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 font-mono truncate flex items-center gap-1 mt-0.5">
+                      <p className="text-xs text-slate-400 font-mono truncate flex items-center gap-1 mt-0.5">
                         <Globe className="w-3 h-3 flex-shrink-0" /> {m.targetUrl}
                       </p>
                     </div>
 
                     {/* Uptime */}
                     <div className="hidden sm:block text-right">
-                      <p className="text-xs text-gray-500 uppercase">Uptime</p>
-                      <p className={`text-sm font-bold ${m.uptime >= 99 ? "text-green-600" : m.uptime >= 95 ? "text-yellow-600" : "text-red-600"}`}>
+                      <p className="text-xs text-slate-400 uppercase">Uptime</p>
+                      <p className={`text-sm font-bold ${m.uptime >= 99 ? "text-emerald-400" : m.uptime >= 95 ? "text-amber-400" : "text-rose-400"}`}>
                         {m.uptime.toFixed(1)}%
                       </p>
                     </div>
@@ -343,10 +343,10 @@ export default function MonitorsPage() {
 
                     {/* Interval */}
                     <div className="hidden lg:block text-right">
-                      <p className="text-xs text-gray-500 uppercase flex items-center gap-1 justify-end">
+                      <p className="text-xs text-slate-400 uppercase flex items-center gap-1 justify-end">
                         <Timer className="w-3 h-3" /> Interval
                       </p>
-                      <p className="text-sm font-medium text-gray-700">{m.pingInterval}s</p>
+                      <p className="text-sm font-medium text-slate-300">{m.pingInterval}s</p>
                     </div>
 
                     {/* Quick pause */}
@@ -354,8 +354,8 @@ export default function MonitorsPage() {
                       onClick={() => handleToggle(m.id)}
                       className={`p-2 rounded-lg transition-colors ${
                         m.isActive
-                          ? "text-amber-500 hover:bg-amber-50"
-                          : "text-green-600 hover:bg-green-50"
+                          ? "text-amber-400 hover:bg-slate-700"
+                          : "text-emerald-400 hover:bg-slate-700"
                       }`}
                       title={m.isActive ? "Pause" : "Resume"}
                     >
@@ -365,7 +365,7 @@ export default function MonitorsPage() {
                     {/* Details link */}
                     <button
                       onClick={() => router.push(`/dashboard/monitors/${m.id}`)}
-                      className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="p-2 rounded-lg text-slate-400 hover:text-brand-cyan hover:bg-slate-700 transition-colors"
                       title="View details"
                     >
                       <ChevronRight className="w-4 h-4" />
