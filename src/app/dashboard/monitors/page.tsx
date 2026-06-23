@@ -45,7 +45,7 @@ function MiniSparkline({ uptime }: { uptime: number }) {
     return Math.max(0.05, Math.min(1, base + noise));
   });
 
-  const color = uptime >= 99 ? "bg-green-500" : uptime >= 95 ? "bg-yellow-400" : "bg-red-500";
+  const color = uptime >= 99 ? "bg-emerald-400" : uptime >= 95 ? "bg-amber-400" : "bg-rose-400";
 
   return (
     <div className="flex items-end gap-[2px] h-8 w-24">
@@ -65,13 +65,13 @@ function MiniSparkline({ uptime }: { uptime: number }) {
 /* ------------------------------------------------------------------ */
 function StatusDot({ status }: { status: string }) {
   const map: Record<string, string> = {
-    ACTIVE: "bg-green-500",
+    ACTIVE: "bg-emerald-400",
     PAUSED: "bg-amber-400",
-    DOWN: "bg-red-500",
-    success: "bg-green-500",
-    failure: "bg-red-500",
-    timeout: "bg-yellow-400",
-    unknown: "bg-gray-400",
+    DOWN: "bg-rose-400",
+    success: "bg-emerald-400",
+    failure: "bg-rose-400",
+    timeout: "bg-amber-400",
+    unknown: "bg-slate-600",
   };
   return <span className={`w-2.5 h-2.5 rounded-full inline-block ${map[status] || "bg-gray-400"}`} />;
 }
@@ -237,7 +237,7 @@ export default function MonitorsPage() {
         <main className="flex-1">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center py-20">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-12 h-12 border-4 border-brand-cyan border-t-transparent rounded-full animate-spin" />
             </div>
           </div>
         </main>
