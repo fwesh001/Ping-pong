@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { RefreshCw, CalendarDays, Crosshair } from "lucide-react";
+import { RefreshCw, CalendarDays, Crosshair, ShieldCheck, Info } from "lucide-react";
 
 export type ScheduleMode = "RECURRING" | "SCHEDULED" | "ONEOFF";
 
@@ -17,6 +17,7 @@ export interface ThreeModeFormState {
   oneOffTime: string;
   // Shared
   timeoutMs: number;
+  maxRetries: number;
 }
 
 const DAYS_OF_WEEK = [
@@ -29,6 +30,12 @@ const DAYS_OF_WEEK = [
   { key: "sunday", label: "Sunday" },
 ];
 
+const RETRY_OPTIONS = [
+  { value: 0, label: "0 — Instant Alert" },
+  { value: 1, label: "1 — Double-Check" },
+  { value: 2, label: "2 — Max Verification" },
+];
+
 interface SchedulingTabsProps {
   value: ThreeModeFormState;
   onChange: (state: ThreeModeFormState) => void;
@@ -39,6 +46,39 @@ const MODE_TABS: { key: ScheduleMode; label: string; icon: React.ReactNode; colo
   { key: "SCHEDULED", label: "Scheduled", icon: <CalendarDays className="w-3.5 h-3.5" />, color: "text-emerald-700", activeColor: "bg-emerald-50 border-emerald-500" },
   { key: "ONEOFF", label: "One-Off", icon: <Crosshair className="w-3.5 h-3.5" />, color: "text-purple-700", activeColor: "bg-purple-50 border-purple-500" },
 ];
+
+function RetryControls({ value, onChange }: { value: ThreeModeFormState; onChange: (s: ThreeModeFormState) => void }) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <label htmlFor={`retry-${value.scheduleMode}`} className="block text-sm font-medium text-gray-700 mb-1">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
+            Max Retry Attempts
+          </span>
+        </label>
+        <select
+          id={`retry-${value.scheduleMode}`}
+          value={value.maxRetries}
+          onChange={(e) => onChange({ ...value, maxRetries: Number(e.target.value) })}
+          className="input-field w-full max-w-xs"
+        >
+          {RETRY_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      {value.maxRetries > 0 && (
+        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 leading-relaxed">
+            <strong>Metered Billing Notice:</strong> Each active verification retry performs live network checks and consumes <strong>1 additional credit</strong> from your wallet balance per retry attempt.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function SchedulingTabs({ value, onChange }: SchedulingTabsProps) {
   const toggleDay = (day: string) => {
@@ -72,7 +112,7 @@ export default function SchedulingTabs({ value, onChange }: SchedulingTabsProps)
         })}
       </div>
 
-      {/* ── RECURRING: Ping Interval + Timeout ── */}
+      {/* ── RECURRING: Ping Interval + Timeout + Retries ── */}
       {value.scheduleMode === "RECURRING" && (
         <div className="space-y-4">
           <div>
@@ -105,10 +145,11 @@ export default function SchedulingTabs({ value, onChange }: SchedulingTabsProps)
               className="input-field w-40"
             />
           </div>
+          <RetryControls value={value} onChange={onChange} />
         </div>
       )}
 
-      {/* ── SCHEDULED: Day Grid + Execution Time + Timeout ── */}
+      {/* ── SCHEDULED: Day Grid + Execution Time + Timeout + Retries ── */}
       {value.scheduleMode === "SCHEDULED" && (
         <div className="space-y-4">
           <div>
@@ -180,6 +221,7 @@ export default function SchedulingTabs({ value, onChange }: SchedulingTabsProps)
               className="input-field w-40"
             />
           </div>
+          <RetryControls value={value} onChange={onChange} />
         </div>
       )}
 
