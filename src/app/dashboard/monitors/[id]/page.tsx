@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StatusHeroBanner from "@/components/ui/StatusHeroBanner";
+import SchedulingTabs, { type ThreeModeFormState } from "@/components/ui/SchedulingTabs";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import {
   CheckCircle2, XCircle, Clock, AlertTriangle, Pause, Play,
@@ -79,6 +80,17 @@ export default function MonitorDetailPage() {
   const [editEndsAt, setEditEndsAt] = useState("");
   const [isScheduled, setIsScheduled] = useState(false);
   const [isOneOff, setIsOneOff] = useState(false);
+  // Scheduling form state (reuse same shape as Create drawer)
+  const [formSchedule, setFormSchedule] = useState<ThreeModeFormState>({
+    scheduleMode: "RECURRING",
+    pingIntervalSecs: 60,
+    activeDays: [],
+    scheduledTime: "09:00",
+    executeDate: "",
+    oneOffTime: "09:00",
+    timeoutMs: 10000,
+    maxRetries: 0,
+  });
 
   // Confirmation modal
   const [confirmAction, setConfirmAction] = useState<"delete" | "save" | null>(null);
@@ -116,6 +128,31 @@ export default function MonitorDetailPage() {
       setEditEndsAt(monData.monitor.endsAt ? monData.monitor.endsAt.slice(0, 16) : "");
       setIsScheduled(!!monData.monitor.startsAt);
       setIsOneOff(monData.monitor.isOneOff);
+      // Initialize scheduling form state from monitor
+      try {
+        const activeDays = typeof monData.monitor.activeDays === "string"
+          ? (JSON.parse(monData.monitor.activeDays) as string[])
+          : Array.isArray(monData.monitor.activeDays)
+          ? monData.monitor.activeDays
+          : (monData.monitor.activeDays ? String(monData.monitor.activeDays).split(",").map((s: string) => s.trim()) : []);
+
+        const executeDate = monData.monitor.startsAt ? monData.monitor.startsAt.slice(0, 10) : "";
+        const oneOffTime = monData.monitor.startsAt ? (monData.monitor.startsAt.slice(11, 16)) : "09:00";
+
+        setFormSchedule({
+          scheduleMode: monData.monitor.isOneOff ? "ONEOFF" : (monData.monitor.scheduleType === "SCHEDULED" ? "SCHEDULED" : "RECURRING"),
+          pingIntervalSecs: monData.monitor.pingInterval || 60,
+          activeDays: activeDays || [],
+          scheduledTime: monData.monitor.executeTime || "09:00",
+          executeDate: executeDate,
+          oneOffTime: oneOffTime,
+          timeoutMs: monData.monitor.timeoutMs || 10000,
+          maxRetries: (monData.monitor as any).maxRetries || 0,
+        });
+      } catch (e) {
+        // best-effort parsing; fall back to defaults
+        setFormSchedule((s) => ({ ...s, pingIntervalSecs: monData.monitor.pingInterval || 60, timeoutMs: monData.monitor.timeoutMs || 10000 }));
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -144,17 +181,27 @@ export default function MonitorDetailPage() {
       setToggling(false);
     }
   };
-
   const handleSave = async () => {
     setSaving(true);
     try {
+      const isOneOffNow = formSchedule.scheduleMode === "ONEOFF";
+      let startsAtVal: string | null = null;
+      if (isOneOffNow && formSchedule.executeDate) {
+        startsAtVal = new Date(`${formSchedule.executeDate}T${formSchedule.oneOffTime}:00`).toISOString();
+      } else if (isScheduled && editStartsAt) {
+        startsAtVal = new Date(editStartsAt).toISOString();
+      }
+
       const body: Record<string, any> = {
         serviceName: editName,
-        pingInterval: editInterval,
-        timeoutMs: editTimeout,
-        isOneOff,
-        startsAt: isScheduled && editStartsAt ? new Date(editStartsAt).toISOString() : null,
+        pingInterval: formSchedule.pingIntervalSecs,
+        timeoutMs: formSchedule.timeoutMs,
+        isOneOff: isOneOffNow,
+        startsAt: startsAtVal,
         endsAt: isScheduled && editEndsAt ? new Date(editEndsAt).toISOString() : null,
+        activeDays: formSchedule.activeDays,
+        scheduledTime: formSchedule.scheduledTime,
+        maxRetries: formSchedule.maxRetries,
       };
 
       const res = await fetch(`/api/monitors?id=${monitorId}`, {
@@ -208,7 +255,9 @@ export default function MonitorDetailPage() {
     editInterval !== monitor.pingInterval ||
     editTimeout !== monitor.timeoutMs ||
     isOneOff !== monitor.isOneOff ||
-    isScheduled !== !!monitor.startsAt
+    isScheduled !== !!monitor.startsAt ||
+    formSchedule.pingIntervalSecs !== monitor.pingInterval ||
+    formSchedule.timeoutMs !== monitor.timeoutMs
   );
 
   if (loading) {
@@ -383,26 +432,15 @@ export default function MonitorDetailPage() {
 
                 {isScheduled && (
                   <div className="space-y-4 bg-slate-800 rounded-lg p-4">
-                    <div className="flex items-center gap-3">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="scheduleType" checked={!isOneOff} onChange={() => setIsOneOff(false)} className="text-brand-cyan" />
-                        <span className="text-sm text-slate-300">Repeat on interval</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="scheduleType" checked={isOneOff} onChange={() => setIsOneOff(true)} className="text-brand-purple" />
-                        <span className="text-sm text-slate-300">Run once (25 credits)</span>
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Start At</label>
-                        <input type="datetime-local" value={editStartsAt} onChange={(e) => setEditStartsAt(e.target.value)} className="input-field" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">End At (optional)</label>
-                        <input type="datetime-local" value={editEndsAt} onChange={(e) => setEditEndsAt(e.target.value)} className="input-field" />
-                      </div>
-                    </div>
+                    <SchedulingTabs
+                      value={formSchedule}
+                      onChange={(s) => {
+                        setFormSchedule(s);
+                        setIsOneOff(s.scheduleMode === "ONEOFF");
+                        setEditInterval(s.pingIntervalSecs);
+                        setEditTimeout(s.timeoutMs);
+                      }}
+                    />
                   </div>
                 )}
               </div>
