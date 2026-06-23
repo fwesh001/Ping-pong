@@ -7,7 +7,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StatusHeroBanner from "@/components/ui/StatusHeroBanner";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
-import SchedulingTabs, { type ThreeModeFormState } from "@/components/ui/SchedulingTabs";
 import {
   CheckCircle2, XCircle, Clock, AlertTriangle, Pause, Play,
   Timer, Trash2, Save, X, CalendarClock, Zap, ExternalLink,
@@ -74,15 +73,12 @@ export default function MonitorDetailPage() {
 
   // Edit state
   const [editName, setEditName] = useState("");
-  const [editSchedule, setEditSchedule] = useState<ThreeModeFormState>({
-    scheduleMode: "RECURRING",
-    pingIntervalSecs: 60,
-    activeDays: [],
-    scheduledTime: "09:00",
-    executeDate: "",
-    oneOffTime: "09:00",
-    timeoutMs: 10000,
-  });
+  const [editInterval, setEditInterval] = useState(60);
+  const [editTimeout, setEditTimeout] = useState(10000);
+  const [editStartsAt, setEditStartsAt] = useState("");
+  const [editEndsAt, setEditEndsAt] = useState("");
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [isOneOff, setIsOneOff] = useState(false);
 
   // Confirmation modal
   const [confirmAction, setConfirmAction] = useState<"delete" | "save" | null>(null);
@@ -114,16 +110,12 @@ export default function MonitorDetailPage() {
 
       // Initialize edit state
       setEditName(monData.monitor.serviceName);
-      const mode = (monData.monitor.scheduleMode as string) || "RECURRING";
-      setEditSchedule({
-        scheduleMode: mode as ThreeModeFormState["scheduleMode"],
-        pingIntervalSecs: monData.monitor.pingInterval || 60,
-        activeDays: monData.monitor.activeDays ? monData.monitor.activeDays.split(",").filter(Boolean) : [],
-        scheduledTime: monData.monitor.executeTime || "09:00",
-        executeDate: monData.monitor.executeDate ? monData.monitor.executeDate.slice(0, 10) : "",
-        oneOffTime: monData.monitor.executeTime || "09:00",
-        timeoutMs: monData.monitor.timeoutMs || 10000,
-      });
+      setEditInterval(monData.monitor.pingInterval);
+      setEditTimeout(monData.monitor.timeoutMs);
+      setEditStartsAt(monData.monitor.startsAt ? monData.monitor.startsAt.slice(0, 16) : "");
+      setEditEndsAt(monData.monitor.endsAt ? monData.monitor.endsAt.slice(0, 16) : "");
+      setIsScheduled(!!monData.monitor.startsAt);
+      setIsOneOff(monData.monitor.isOneOff);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -158,18 +150,12 @@ export default function MonitorDetailPage() {
     try {
       const body: Record<string, any> = {
         serviceName: editName,
-        scheduleMode: editSchedule.scheduleMode,
-        timeoutMs: editSchedule.timeoutMs,
+        pingInterval: editInterval,
+        timeoutMs: editTimeout,
+        isOneOff,
+        startsAt: isScheduled && editStartsAt ? new Date(editStartsAt).toISOString() : null,
+        endsAt: isScheduled && editEndsAt ? new Date(editEndsAt).toISOString() : null,
       };
-      if (editSchedule.scheduleMode === "RECURRING") {
-        body.pingIntervalSecs = editSchedule.pingIntervalSecs;
-      } else if (editSchedule.scheduleMode === "SCHEDULED") {
-        body.activeDays = editSchedule.activeDays.join(",");
-        body.executeTime = editSchedule.scheduledTime;
-      } else if (editSchedule.scheduleMode === "ONEOFF") {
-        body.executeDate = editSchedule.executeDate ? new Date(editSchedule.executeDate).toISOString() : null;
-        body.executeTime = editSchedule.oneOffTime;
-      }
 
       const res = await fetch(`/api/monitors?id=${monitorId}`, {
         method: "PATCH",
@@ -219,9 +205,10 @@ export default function MonitorDetailPage() {
 
   const hasChanges = monitor && (
     editName !== monitor.serviceName ||
-    editSchedule.pingIntervalSecs !== monitor.pingInterval ||
-    editSchedule.timeoutMs !== monitor.timeoutMs ||
-    editSchedule.scheduleMode !== monitor.scheduleMode
+    editInterval !== monitor.pingInterval ||
+    editTimeout !== monitor.timeoutMs ||
+    isOneOff !== monitor.isOneOff ||
+    isScheduled !== !!monitor.startsAt
   );
 
   if (loading) {
@@ -368,18 +355,65 @@ export default function MonitorDetailPage() {
                 <input type="text" value={monitor.targetUrl} readOnly className="input-field bg-gray-50 text-gray-500" />
               </div>
 
-              {/* 3-Mode Scheduling */}
+              {/* Interval + Timeout */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ping Interval (seconds)</label>
+                  <input type="number" value={editInterval} onChange={(e) => setEditInterval(Number(e.target.value))} min={60} max={3600} className="input-field" />
+                  <p className="text-xs text-gray-500 mt-1">Minimum 60 seconds</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Timeout (ms)</label>
+                  <input type="number" value={editTimeout} onChange={(e) => setEditTimeout(Number(e.target.value))} min={1000} max={60000} className="input-field" />
+                </div>
+              </div>
+
+              {/* Scheduling */}
               <div className="border-t border-gray-200 pt-5">
-                <SchedulingTabs value={editSchedule} onChange={setEditSchedule} />
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">Scheduling</h3>
+                    <p className="text-xs text-gray-500">Configure when this monitor should run</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked={isScheduled} onChange={(e) => setIsScheduled(e.target.checked)} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {isScheduled && (
+                  <div className="space-y-4 bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="scheduleType" checked={!isOneOff} onChange={() => setIsOneOff(false)} className="text-blue-600" />
+                        <span className="text-sm text-gray-700">Repeat on interval</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="scheduleType" checked={isOneOff} onChange={() => setIsOneOff(true)} className="text-purple-600" />
+                        <span className="text-sm text-gray-700">Run once (25 credits)</span>
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Start At</label>
+                        <input type="datetime-local" value={editStartsAt} onChange={(e) => setEditStartsAt(e.target.value)} className="input-field" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">End At (optional)</label>
+                        <input type="datetime-local" value={editEndsAt} onChange={(e) => setEditEndsAt(e.target.value)} className="input-field" />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Cost info */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
                   <span className="font-semibold">Cost:</span>{" "}
-                  {editSchedule.scheduleMode === "ONEOFF"
+                  {isOneOff
                     ? "25.0000 credits (flat, one-time charge)"
-                    : `${((0.8333 * editSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits/ping (${(((0.8333 * editSchedule.pingIntervalSecs) / 3600) * ((24 * 3600) / editSchedule.pingIntervalSecs)).toFixed(4)} credits/day)`}
+                    : `${((0.8333 * editInterval) / 3600).toFixed(5)} credits/ping (${(((0.8333 * editInterval) / 3600) * ((24 * 3600) / editInterval)).toFixed(4)} credits/day)`}
                 </p>
               </div>
 
