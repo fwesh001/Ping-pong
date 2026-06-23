@@ -19,11 +19,6 @@ export interface ThreeModeFormState {
   timeoutMs: number;
 }
 
-interface SchedulingTabsProps {
-  value: ThreeModeFormState;
-  onChange: (state: ThreeModeFormState) => void;
-}
-
 const DAYS_OF_WEEK = [
   { key: "monday", label: "Monday" },
   { key: "tuesday", label: "Tuesday" },
@@ -33,6 +28,11 @@ const DAYS_OF_WEEK = [
   { key: "saturday", label: "Saturday" },
   { key: "sunday", label: "Sunday" },
 ];
+
+interface SchedulingTabsProps {
+  value: ThreeModeFormState;
+  onChange: (state: ThreeModeFormState) => void;
+}
 
 const MODE_TABS: { key: ScheduleMode; label: string; icon: React.ReactNode; color: string; activeColor: string }[] = [
   { key: "RECURRING", label: "Recurring", icon: <RefreshCw className="w-3.5 h-3.5" />, color: "text-blue-700", activeColor: "bg-blue-50 border-blue-500" },
