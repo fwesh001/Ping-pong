@@ -28,6 +28,7 @@ model Monitor {
   scheduleMode     String    @default("RECURRING")
   pingIntervalSecs Int?
   timeoutMs        Int       @default(10000)
+  maxRetries       Int       @default(0)
   activeDays       String?
   executeTime      String?
   executeDate      DateTime?
