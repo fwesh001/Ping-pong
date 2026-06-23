@@ -385,8 +385,8 @@ export default function MonitorsPage() {
                 className="rounded-2xl mx-auto mb-6 opacity-30"
                 style={{ width: "auto", height: "auto" }}
               />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No monitors yet</h3>
-              <p className="text-gray-500 mb-8 text-sm max-w-md mx-auto">
+              <h3 className="text-xl font-semibold text-slate-300 mb-2">No monitors yet</h3>
+              <p className="text-slate-400 mb-8 text-sm max-w-md mx-auto">
                 Start monitoring your web services by creating your first monitor. Track uptime, response times, and get alerted when things go down.
               </p>
               <button
@@ -435,7 +435,7 @@ export default function MonitorsPage() {
         <div className="space-y-5">
           {/* Service Name */}
           <div>
-            <label htmlFor="drawerName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="drawerName" className="block text-sm font-medium text-slate-300 mb-1">
               Service Name
             </label>
             <input
@@ -451,7 +451,7 @@ export default function MonitorsPage() {
 
           {/* Target URL */}
           <div>
-            <label htmlFor="drawerUrl" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="drawerUrl" className="block text-sm font-medium text-slate-300 mb-1">
               Target URL
             </label>
             <input
@@ -466,22 +466,22 @@ export default function MonitorsPage() {
           </div>
 
           {/* Scheduling Tabs */}
-          <div className="border-t border-gray-200 pt-5">
-            <h3 className="text-sm font-medium text-gray-900 mb-1">Schedule Configuration</h3>
-            <p className="text-xs text-gray-500 mb-4">Choose how this monitor should run</p>
+          <div className="border-t border-slate-700 pt-5">
+            <h3 className="text-sm font-medium text-slate-100 mb-1">Schedule Configuration</h3>
+            <p className="text-xs text-slate-400 mb-4">Choose how this monitor should run</p>
             <SchedulingTabs value={formSchedule} onChange={setFormSchedule} />
           </div>
 
           {/* Cost Preview */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <p className="text-sm text-blue-800">
+          <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
+            <p className="text-sm text-slate-200">
               <span className="font-semibold">Estimated Cost:</span>{" "}
               {formSchedule.scheduleMode === "ONEOFF"
                 ? "25.0000 credits (flat, one-time)"
                 : `${((0.8333 * formSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits/ping (${(((0.8333 * formSchedule.pingIntervalSecs) / 3600) * ((24 * 3600) / formSchedule.pingIntervalSecs)).toFixed(4)} credits/day)`}
             </p>
             {formSchedule.maxRetries > 0 && formSchedule.scheduleMode !== "ONEOFF" && (
-              <p className="text-xs text-amber-700 mt-2">
+              <p className="text-xs text-amber-400 mt-2">
                 + {formSchedule.maxRetries} retry attempt(s) × {((0.8333 * formSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits each if ping fails
               </p>
             )}
