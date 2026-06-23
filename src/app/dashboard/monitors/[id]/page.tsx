@@ -213,7 +213,7 @@ export default function MonitorDetailPage() {
 
   if (loading) {
     return (
-      <><Navbar creditBalance={0} /><main className="flex-1"><div className="container mx-auto px-4 py-8"><div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div></div></main><Footer /></>
+      <><Navbar creditBalance={0} /><main className="flex-1"><div className="container mx-auto px-4 py-8"><div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-brand-cyan border-t-transparent rounded-full animate-spin" /></div></div></main><Footer /></>
     );
   }
 
