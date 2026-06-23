@@ -133,7 +133,7 @@ export default function LogsPage() {
             </div>
           </div>
 
-          {error && (<div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> {error}</div>)}
+          {error && (<div className="bg-rose-900 border border-rose-700 text-rose-300 rounded-lg p-4 mb-6 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> {error}</div>)}
 
           {loading && logs.length === 0 ? (
             <div className="flex items-center justify-center py-20"><div className="w-10 h-10 border-4 border-brand-cyan border-t-transparent rounded-full animate-spin" /></div>
@@ -195,8 +195,8 @@ export default function LogsPage() {
                 </table>
               </div>
               {hasMore && (
-                <div className="px-4 py-3 border-t border-gray-200 bg-gray-50 flex justify-center">
-                  <button onClick={() => setOffset((p) => p + LIMIT)} className="btn-secondary text-sm flex items-center gap-1.5">
+                <div className="px-4 py-3 border-t border-slate-700 bg-slate-800 flex justify-center">
+                  <button onClick={() => setOffset((p) => p + LIMIT)} className="btn-secondary text-sm flex items-center gap-1.5 text-brand-cyan">
                     <ChevronDown className="w-4 h-4" /> Load More ({total - offset - LIMIT} remaining)
                   </button>
                 </div>
