@@ -117,15 +117,15 @@ export default function PingerForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {atMaxMonitors && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+        <div className="bg-slate-800 border border-amber-700 rounded-lg p-4 text-sm text-amber-400 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-400" />
           Maximum of {maxMonitors} active monitors reached. Pause or delete one to add more.
         </div>
       )}
 
       {/* 1. Service Name */}
       <div>
-        <label htmlFor="serviceName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="serviceName" className="block text-sm font-medium text-slate-100 mb-1">
           Service Name
         </label>
         <input
@@ -135,12 +135,12 @@ export default function PingerForm({
           className={`input-field ${errors.serviceName ? "border-red-500" : ""}`}
           disabled={atMaxMonitors}
         />
-        {errors.serviceName && <p className="text-red-600 text-sm mt-1">{errors.serviceName}</p>}
+        {errors.serviceName && <p className="text-rose-400 text-sm mt-1">{errors.serviceName}</p>}
       </div>
 
       {/* 2. Target URL */}
       <div>
-        <label htmlFor="targetUrl" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="targetUrl" className="block text-sm font-medium text-slate-100 mb-1">
           Target URL
         </label>
         <input
@@ -150,13 +150,13 @@ export default function PingerForm({
           className={`input-field ${errors.targetUrl ? "border-red-500" : ""}`}
           disabled={atMaxMonitors}
         />
-        {errors.targetUrl && <p className="text-red-600 text-sm mt-1">{errors.targetUrl}</p>}
+        {errors.targetUrl && <p className="text-rose-400 text-sm mt-1">{errors.targetUrl}</p>}
       </div>
 
       {/* 3. 3-Mode Scheduling */}
-      <div className="border-t border-gray-200 pt-5">
-        <h3 className="text-sm font-medium text-gray-900 mb-1">Schedule Mode</h3>
-        <p className="text-xs text-gray-500 mb-4">Choose how this monitor should run</p>
+      <div className="border-t border-slate-700 pt-5">
+        <h3 className="text-sm font-medium font-poppins text-slate-100 mb-1">Schedule Mode</h3>
+        <p className="text-xs text-slate-400 mb-4">Choose how this monitor should run</p>
         <SchedulingTabs value={schedule} onChange={setSchedule} />
         {errors.interval && <p className="text-red-600 text-xs mt-1">{errors.interval}</p>}
         {errors.activeDays && <p className="text-red-600 text-xs mt-1">{errors.activeDays}</p>}
@@ -164,52 +164,52 @@ export default function PingerForm({
       </div>
 
       {/* Cost Breakdown */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-3 flex items-center gap-2">
-          <DollarSign className="w-4 h-4" /> Cost Breakdown
+      <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+        <h4 className="text-sm font-semibold font-poppins text-slate-100 mb-3 flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-slate-100" /> Cost Breakdown
         </h4>
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-2 gap-3 text-sm text-slate-300">
           <div>
-            <p className="text-blue-700 flex items-center gap-1">
+            <p className="text-slate-300 flex items-center gap-1">
               <DollarSign className="w-3 h-3" /> {schedule.scheduleMode === "ONEOFF" ? "Total cost" : "Cost per ping"}
             </p>
-            <p className="font-bold text-blue-900">{costPerPing.toFixed(5)} credits</p>
+            <p className="font-bold text-slate-100">{costPerPing.toFixed(5)} credits</p>
           </div>
           <div>
-            <p className="text-blue-700 flex items-center gap-1">
+            <p className="text-slate-300 flex items-center gap-1">
               {schedule.scheduleMode === "ONEOFF" ? <Crosshair className="w-3 h-3" /> : <Timer className="w-3 h-3" />}
               {" "}{schedule.scheduleMode === "ONEOFF" ? "Type" : "Pings/day"}
             </p>
-            <p className="font-bold text-blue-900">
+            <p className="font-bold text-slate-100">
               {schedule.scheduleMode === "ONEOFF" ? "One-off (25cr)" : pingsPerDay.toLocaleString()}
             </p>
           </div>
           <div>
-            <p className="text-blue-700 flex items-center gap-1">
+            <p className="text-slate-300 flex items-center gap-1">
               {schedule.scheduleMode === "ONEOFF" ? <Crosshair className="w-3 h-3" /> : <Timer className="w-3 h-3" />}
               {" "}{schedule.scheduleMode === "ONEOFF" ? "Flat fee" : "Daily cost"}
             </p>
-            <p className="font-bold text-blue-900">
+            <p className="font-bold text-slate-100">
               {schedule.scheduleMode === "ONEOFF" ? "25.0000 cr" : `${dailyCost.toFixed(4)} cr/day`}
             </p>
           </div>
           <div>
-            <p className="text-blue-700 flex items-center gap-1"><Timer className="w-3 h-3" /> 100cr lasts</p>
-            <p className="font-bold text-blue-900">{daysUntilEmpty === Infinity ? "∞" : `~${daysUntilEmpty.toFixed(1)} days`}</p>
+            <p className="text-slate-300 flex items-center gap-1"><Timer className="w-3 h-3" /> 100cr lasts</p>
+            <p className="font-bold text-slate-100">{daysUntilEmpty === Infinity ? "∞" : `~${daysUntilEmpty.toFixed(1)} days`}</p>
           </div>
         </div>
         {schedule.scheduleMode === "RECURRING" && (
-          <p className="text-xs text-blue-600 mt-3 flex items-center gap-1">
+          <p className="text-xs text-slate-400 mt-3 flex items-center gap-1">
             <Info className="w-3 h-3" /> Formula: (0.8333 × {schedule.pingIntervalSecs}s) ÷ 3600s = {costPerPing.toFixed(5)} credits/ping
           </p>
         )}
         {schedule.scheduleMode === "ONEOFF" && (
-          <p className="text-xs text-purple-600 mt-3 flex items-center gap-1">
+          <p className="text-xs text-brand-purple mt-3 flex items-center gap-1">
             <Crosshair className="w-3 h-3" /> One-off: flat 25 credit charge, runs once then auto-completes
           </p>
         )}
         {schedule.scheduleMode === "SCHEDULED" && (
-          <p className="text-xs text-emerald-600 mt-3 flex items-center gap-1">
+          <p className="text-xs text-emerald-400 mt-3 flex items-center gap-1">
             <CalendarDays className="w-3 h-3" /> Scheduled: pings on selected days at the specified time
           </p>
         )}
