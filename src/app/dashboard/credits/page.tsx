@@ -133,7 +133,7 @@ export default function CreditsPage() {
                 return (
                   <div key={day} className="flex-1 flex flex-col items-center relative">
                     {isDay7 && (
-                      <span className="absolute -top-5 text-[10px] font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                      <span className="absolute -top-5 text-[10px] font-bold text-brand-purple bg-slate-800 px-1.5 py-0.5 rounded-full whitespace-nowrap">
                         <Zap className="w-2.5 h-2.5 inline" /> +25
                       </span>
                     )}
