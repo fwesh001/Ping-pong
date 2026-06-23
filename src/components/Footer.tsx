@@ -31,7 +31,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/help/docs"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   Documentation
                 </Link>
@@ -39,7 +39,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/help/faq"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   FAQ
                 </Link>
@@ -54,7 +54,7 @@ export default function Footer() {
               <li>
                 <a
                   href="mailto:support@ping-pong.io"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   Support Email
                 </a>
@@ -62,7 +62,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/feedback"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   Send Feedback
                 </Link>
@@ -70,7 +70,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   Contact Us
                 </Link>
@@ -85,7 +85,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/api-docs"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   API Documentation
                 </Link>
@@ -93,7 +93,7 @@ export default function Footer() {
               <li>
                 <a
                   href="https://github.com/ping-pong"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -103,7 +103,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/status"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-sm hover:text-slate-100 transition-colors"
                 >
                   Status Page
                 </Link>
