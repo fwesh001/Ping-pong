@@ -156,7 +156,6 @@ export async function GET(req: NextRequest) {
         pingInterval: m.pingIntervalSecs,
         isActive: m.isActive,
         status: m.status,
-        isOneOff: m.isOneOff,
         isCompleted: m.isCompleted,
         costPerPing: Number(m.costPerPing),
         timeoutMs: m.timeoutMs,
@@ -242,7 +241,6 @@ export async function POST(req: NextRequest) {
         costPerPing,
         isActive: true,
         status: "ACTIVE",
-        isOneOff,
         isCompleted: false,
       },
     });
@@ -257,7 +255,6 @@ export async function POST(req: NextRequest) {
         pingInterval: monitor.pingIntervalSecs,
         isActive: monitor.isActive,
         status: monitor.status,
-        isOneOff: monitor.isOneOff,
         costPerPing: Number(monitor.costPerPing),
         timeoutMs: monitor.timeoutMs,
         activeDays: monitor.activeDays,
@@ -304,7 +301,7 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: `Ping interval must be between ${MIN_INTERVAL_SECS} and 3600 seconds` }, { status: 400 });
       }
       updateData.pingIntervalSecs = interval;
-      if (!existing.isOneOff) updateData.costPerPing = calculatePingCost(interval);
+      if (body.scheduleMode !== "ONEOFF") updateData.costPerPing = calculatePingCost(interval);
     }
     if (body.timeoutMs !== undefined) updateData.timeoutMs = Number(body.timeoutMs);
     if (body.isActive !== undefined) updateData.isActive = Boolean(body.isActive);
@@ -318,7 +315,7 @@ export async function PATCH(req: NextRequest) {
       message: "Monitor updated",
       monitor: {
         id: updated.id, serviceName: updated.serviceName, targetUrl: updated.targetUrl,
-        scheduleMode: updated.scheduleMode, pingInterval: updated.pingIntervalSecs, isActive: updated.isActive, status: updated.status, isOneOff: updated.isOneOff,
+        scheduleMode: updated.scheduleMode, pingInterval: updated.pingIntervalSecs, isActive: updated.isActive, status: updated.status,
         costPerPing: Number(updated.costPerPing),
         timeoutMs: updated.timeoutMs,
         activeDays: updated.activeDays, executeTime: updated.executeTime, executeDate: updated.executeDate?.toISOString() || null,
