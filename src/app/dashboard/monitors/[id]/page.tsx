@@ -339,67 +339,67 @@ export default function MonitorDetailPage() {
 
           {/* Configuration Form */}
           <div className="card mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-gray-600" /> Configuration
+            <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-slate-400" /> Configuration
             </h2>
             <div className="space-y-5">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Service Name</label>
                 <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="input-field" />
               </div>
 
               {/* Target URL (read-only) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Target URL</label>
-                <input type="text" value={monitor.targetUrl} readOnly className="input-field bg-gray-50 text-gray-500" />
+                <label className="block text-sm font-medium text-slate-300 mb-1">Target URL</label>
+                <input type="text" value={monitor.targetUrl} readOnly className="input-field bg-slate-800 text-slate-400" />
               </div>
 
               {/* Interval + Timeout */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ping Interval (seconds)</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Ping Interval (seconds)</label>
                   <input type="number" value={editInterval} onChange={(e) => setEditInterval(Number(e.target.value))} min={60} max={3600} className="input-field" />
-                  <p className="text-xs text-gray-500 mt-1">Minimum 60 seconds</p>
+                  <p className="text-xs text-slate-400 mt-1">Minimum 60 seconds</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Timeout (ms)</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Timeout (ms)</label>
                   <input type="number" value={editTimeout} onChange={(e) => setEditTimeout(Number(e.target.value))} min={1000} max={60000} className="input-field" />
                 </div>
               </div>
 
               {/* Scheduling */}
-              <div className="border-t border-gray-200 pt-5">
+              <div className="border-t border-slate-700 pt-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">Scheduling</h3>
-                    <p className="text-xs text-gray-500">Configure when this monitor should run</p>
+                    <h3 className="text-sm font-medium text-slate-100">Scheduling</h3>
+                    <p className="text-xs text-slate-400">Configure when this monitor should run</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={isScheduled} onChange={(e) => setIsScheduled(e.target.checked)} className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-11 h-6 bg-slate-700 peer-focus:ring-2 peer-focus:ring-brand-cyan rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-cyan"></div>
                   </label>
                 </div>
 
                 {isScheduled && (
-                  <div className="space-y-4 bg-gray-50 rounded-lg p-4">
+                  <div className="space-y-4 bg-slate-800 rounded-lg p-4">
                     <div className="flex items-center gap-3">
                       <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="scheduleType" checked={!isOneOff} onChange={() => setIsOneOff(false)} className="text-blue-600" />
-                        <span className="text-sm text-gray-700">Repeat on interval</span>
+                        <input type="radio" name="scheduleType" checked={!isOneOff} onChange={() => setIsOneOff(false)} className="text-brand-cyan" />
+                        <span className="text-sm text-slate-300">Repeat on interval</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="scheduleType" checked={isOneOff} onChange={() => setIsOneOff(true)} className="text-purple-600" />
-                        <span className="text-sm text-gray-700">Run once (25 credits)</span>
+                        <input type="radio" name="scheduleType" checked={isOneOff} onChange={() => setIsOneOff(true)} className="text-brand-purple" />
+                        <span className="text-sm text-slate-300">Run once (25 credits)</span>
                       </label>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Start At</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Start At</label>
                         <input type="datetime-local" value={editStartsAt} onChange={(e) => setEditStartsAt(e.target.value)} className="input-field" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">End At (optional)</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">End At (optional)</label>
                         <input type="datetime-local" value={editEndsAt} onChange={(e) => setEditEndsAt(e.target.value)} className="input-field" />
                       </div>
                     </div>
@@ -408,8 +408,8 @@ export default function MonitorDetailPage() {
               </div>
 
               {/* Cost info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                <p className="text-sm text-slate-200">
                   <span className="font-semibold">Cost:</span>{" "}
                   {isOneOff
                     ? "25.0000 credits (flat, one-time charge)"
@@ -418,10 +418,10 @@ export default function MonitorDetailPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-between pt-4 border-t border-gray-200">
+              <div className="flex justify-between pt-4 border-t border-slate-700">
                 <button
                   onClick={() => setConfirmAction("delete")}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium bg-rose-700 text-rose-100 hover:bg-rose-600 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete Monitor
                 </button>
@@ -441,38 +441,38 @@ export default function MonitorDetailPage() {
 
           {/* Recent Incidents */}
           <div className="card">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-red-500" /> Recent Incidents</h2>
+            <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-rose-400" /> Recent Incidents</h2>
             {incidents.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-2 px-3 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500">Code</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500">Response Time</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500">Error</th>
-                      <th className="text-left py-2 px-3 font-medium text-gray-500">Time</th>
+                    <tr className="border-b border-slate-700">
+                      <th className="text-left py-2 px-3 font-medium text-slate-400">Status</th>
+                      <th className="text-left py-2 px-3 font-medium text-slate-400">Code</th>
+                      <th className="text-left py-2 px-3 font-medium text-slate-400">Response Time</th>
+                      <th className="text-left py-2 px-3 font-medium text-slate-400">Error</th>
+                      <th className="text-left py-2 px-3 font-medium text-slate-400">Time</th>
                     </tr>
                   </thead>
                   <tbody>
                     {incidents.map((inc) => (
-                      <tr key={inc.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={inc.id} className="border-b border-slate-700 hover:bg-slate-800">
                         <td className="py-2 px-3">
-                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${inc.status === "timeout" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}>
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${inc.status === "timeout" ? "bg-amber-400 text-slate-900" : "bg-rose-400 text-slate-900"}`}>
                             {inc.status}
                           </span>
                         </td>
-                        <td className="py-2 px-3 font-mono text-gray-600">{inc.statusCode || "—"}</td>
-                        <td className="py-2 px-3 text-gray-600">{inc.responseTimeMs ? `${inc.responseTimeMs}ms` : "—"}</td>
-                        <td className="py-2 px-3 text-gray-500 max-w-xs truncate">{inc.errorMessage || "—"}</td>
-                        <td className="py-2 px-3 text-gray-500">{new Date(inc.checkedAt).toLocaleString()}</td>
+                        <td className="py-2 px-3 font-mono text-slate-400">{inc.statusCode || "—"}</td>
+                        <td className="py-2 px-3 text-slate-400">{inc.responseTimeMs ? `${inc.responseTimeMs}ms` : "—"}</td>
+                        <td className="py-2 px-3 text-slate-400 max-w-xs truncate">{inc.errorMessage || "—"}</td>
+                        <td className="py-2 px-3 text-slate-400">{new Date(inc.checkedAt).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8 flex items-center justify-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-400" /> No incidents recorded in the last 30 days</p>
+              <p className="text-slate-400 text-center py-8 flex items-center justify-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-400" /> No incidents recorded in the last 30 days</p>
             )}
           </div>
         </div>
