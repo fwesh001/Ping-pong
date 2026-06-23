@@ -101,18 +101,18 @@ export default function LogsPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="mb-6">
-            <Link href="/dashboard" className="text-blue-600 hover:underline text-sm inline-flex items-center gap-1 mb-2">← Back to Dashboard</Link>
-            <h1 className="text-3xl font-bold text-gray-900">Ping Logs</h1>
-            <p className="text-gray-500 mt-1">Historical ping results across all your monitors</p>
+            <Link href="/dashboard" className="text-brand-cyan hover:underline text-sm inline-flex items-center gap-1 mb-2">← Back to Dashboard</Link>
+            <h1 className="text-3xl font-bold text-slate-100">Ping Logs</h1>
+            <p className="text-slate-400 mt-1">Historical ping results across all your monitors</p>
           </div>
 
           {/* Filters */}
           <div className="card mb-6">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-500"><Filter className="w-4 h-4" /> Filters</div>
+              <div className="flex items-center gap-2 text-sm text-slate-400"><Filter className="w-4 h-4" /> Filters</div>
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <select value={filterMonitorId} onChange={(e) => setFilterMonitorId(e.target.value)} className="input-field pl-9 appearance-none">
                     <option value="">All Monitors</option>
                     {monitors.map((m) => (<option key={m.id} value={m.id}>{m.serviceName}</option>))}
@@ -136,51 +136,51 @@ export default function LogsPage() {
           {error && (<div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> {error}</div>)}
 
           {loading && logs.length === 0 ? (
-            <div className="flex items-center justify-center py-20"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>
+            <div className="flex items-center justify-center py-20"><div className="w-10 h-10 border-4 border-brand-cyan border-t-transparent rounded-full animate-spin" /></div>
           ) : logs.length === 0 ? (
             <div className="card text-center py-16">
-              <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg">No logs found</p>
-              <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or wait for some pings to complete</p>
+              <Search className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+              <p className="text-slate-400 text-lg">No logs found</p>
+              <p className="text-slate-500 text-sm mt-1">Try adjusting your filters or wait for some pings to complete</p>
             </div>
           ) : (
             <div className="card overflow-hidden p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500 w-8"></th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Date & Time</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Monitor</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Target URL</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Code</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Response</th>
+                    <tr className="bg-slate-800 border-b border-slate-700">
+                      <th className="text-left py-3 px-4 font-medium text-slate-400 w-8"></th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-400">Date & Time</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-400">Monitor</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-400">Target URL</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-400">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-400">Code</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-400">Response</th>
                     </tr>
                   </thead>
                   <tbody>
                     {logs.map((log) => (
                       <React.Fragment key={log.id}>
-                        <tr className="border-b border-gray-100 hover:bg-blue-50/50 cursor-pointer transition-colors" onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}>
-                          <td className="py-3 px-4">{expandedId === log.id ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}</td>
-                          <td className="py-3 px-4 text-gray-700 whitespace-nowrap">{new Date(log.checkedAt).toLocaleString()}</td>
-                          <td className="py-3 px-4"><Link href={`/dashboard/monitors/${log.monitorId}`} className="text-blue-600 hover:underline font-medium" onClick={(e) => e.stopPropagation()}>{log.monitorName}</Link></td>
-                          <td className="py-3 px-4 text-gray-500 font-mono text-xs max-w-[200px] truncate">{log.targetUrl}</td>
+                        <tr className="border-b border-slate-700 hover:bg-slate-800 cursor-pointer transition-colors" onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}>
+                          <td className="py-3 px-4">{expandedId === log.id ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}</td>
+                          <td className="py-3 px-4 text-slate-200 whitespace-nowrap">{new Date(log.checkedAt).toLocaleString()}</td>
+                          <td className="py-3 px-4"><Link href={`/dashboard/monitors/${log.monitorId}`} className="text-brand-cyan hover:underline font-medium" onClick={(e) => e.stopPropagation()}>{log.monitorName}</Link></td>
+                          <td className="py-3 px-4 text-slate-400 font-mono text-xs max-w-[200px] truncate">{log.targetUrl}</td>
                           <td className="py-3 px-4">{getStatusBadge(log.status)}</td>
-                          <td className="py-3 px-4 text-gray-500 font-mono">{log.statusCode || "—"}</td>
-                          <td className="py-3 px-4 text-gray-500">{log.responseTimeMs ? `${log.responseTimeMs}ms` : "—"}</td>
+                          <td className="py-3 px-4 text-slate-400 font-mono">{log.statusCode || "—"}</td>
+                          <td className="py-3 px-4 text-slate-400">{log.responseTimeMs ? `${log.responseTimeMs}ms` : "—"}</td>
                         </tr>
                         {expandedId === log.id && (
-                          <tr className="bg-gray-50">
+                          <tr className="bg-slate-800">
                             <td colSpan={7} className="px-4 py-4">
                               <div className="max-w-2xl">
-                                <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Details</h4>
+                                <h4 className="text-sm font-semibold text-slate-100 mb-2 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Details</h4>
                                 {log.errorMessage ? (
-                                  <div className="bg-red-50 border border-red-200 rounded-lg p-3"><p className="text-sm text-red-800 font-mono break-all">{log.errorMessage}</p></div>
+                                  <div className="bg-rose-900 border border-rose-700 rounded-lg p-3"><p className="text-sm text-rose-300 font-mono break-all">{log.errorMessage}</p></div>
                                 ) : (
-                                  <div className="bg-green-50 border border-green-200 rounded-lg p-3"><p className="text-sm text-green-800 flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> No errors returned — ping completed successfully</p></div>
+                                  <div className="bg-emerald-900 border border-emerald-700 rounded-lg p-3"><p className="text-sm text-emerald-300 flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> No errors returned — ping completed successfully</p></div>
                                 )}
-                                <div className="mt-3 grid grid-cols-3 gap-4 text-xs text-gray-500">
+                                <div className="mt-3 grid grid-cols-3 gap-4 text-xs text-slate-400">
                                   <div><span className="font-medium">Log ID:</span> <span className="font-mono">{log.id}</span></div>
                                   <div><span className="font-medium">Monitor ID:</span> <span className="font-mono">{log.monitorId}</span></div>
                                   <div><span className="font-medium">Checked:</span> {new Date(log.checkedAt).toISOString()}</div>
