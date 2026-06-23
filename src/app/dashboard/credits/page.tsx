@@ -167,12 +167,12 @@ export default function CreditsPage() {
             </div>
 
             {streakCount > 0 && streakCount < 7 && (
-              <p className="text-xs text-gray-500 mt-3 text-center">
+              <p className="text-xs text-slate-400 mt-3 text-center">
                 {7 - streakCount} more day{7 - streakCount > 1 ? "s" : ""} until the +25 bonus!
               </p>
             )}
             {streakCount === 0 && !claimedToday && (
-              <p className="text-xs text-purple-600 mt-3 text-center font-medium">
+              <p className="text-xs text-brand-purple mt-3 text-center font-medium">
                 Claim today to start your streak! 🔥
               </p>
             )}
@@ -181,12 +181,12 @@ export default function CreditsPage() {
           {/* Claim Section */}
           <div className="card text-center">
             <div className="mb-6">
-              <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gift className="w-10 h-10 text-yellow-600" />
+              <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Gift className="w-10 h-10 text-amber-400" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Daily Credit Reward</h2>
-              <p className="text-gray-600">
-                Claim <span className="font-bold text-blue-600">{DAILY_REWARD} credits</span> every 24 hours for free!
+              <h2 className="text-xl font-bold text-slate-100 mb-2">Daily Credit Reward</h2>
+              <p className="text-slate-400">
+                Claim <span className="font-bold text-brand-cyan">{DAILY_REWARD} credits</span> every 24 hours for free!
               </p>
                 {streakCount >= 7 && (
                 <p className="text-brand-purple text-sm mt-2 font-medium flex items-center justify-center gap-1">
