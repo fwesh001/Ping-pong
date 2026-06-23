@@ -47,7 +47,7 @@ export default function CreditsPage() {
       // Explosive multi-directional burst for Day 7
       const duration = 3000;
       const end = Date.now() + duration;
-      const colors = ["#10b981", "#8b5cf6", "#3b82f6", "#f59e0b", "#ef4444", "#ec4899"];
+      const colors = ["#00CFFF", "#9B4DCC", "#10B981", "#F59E0B", "#EF4444", "#EC4899"];
 
       (function frame() {
         confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, colors });
@@ -57,7 +57,7 @@ export default function CreditsPage() {
       })();
     } else {
       // Standard celebration
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ["#10b981", "#3b82f6", "#8b5cf6"] });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ["#10B981", "#00CFFF", "#9B4DCC"] });
     }
   };
 
@@ -100,13 +100,13 @@ export default function CreditsPage() {
       <Navbar creditBalance={creditBalance} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Daily Check-in</h1>
-          <p className="text-gray-600 mb-8">Claim your free daily credits to keep monitoring your services.</p>
+          <h1 className="text-3xl font-bold text-slate-100 mb-2">Daily Check-in</h1>
+          <p className="text-slate-400 mb-8">Claim your free daily credits to keep monitoring your services.</p>
 
           {/* Current Balance */}
-          <div className="card mb-6 bg-blue-50 border-blue-200">
-            <h3 className="text-sm font-medium text-blue-700 uppercase mb-1">Current Balance</h3>
-            <p className="text-4xl font-bold text-blue-900">
+          <div className="card mb-6 bg-slate-800 border-slate-700">
+            <h3 className="text-sm font-medium text-slate-200 uppercase mb-1">Current Balance</h3>
+            <p className="text-4xl font-bold text-slate-100">
               {typeof creditBalance === "number" ? creditBalance.toFixed(4).replace(/\.?0+$/, "") : creditBalance}
             </p>
           </div>
@@ -114,10 +114,10 @@ export default function CreditsPage() {
           {/* 7-Day Streak Tracker */}
           <div className="card mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Flame className="w-5 h-5 text-orange-500" /> Streak Tracker
-              </h3>
-              <span className="text-sm text-gray-500">
+              <h3 className="font-semibold text-slate-100 flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-amber-400" /> Streak Tracker
+                </h3>
+                <span className="text-sm text-slate-400">
                 {streakCount > 0 ? `${streakCount} day${streakCount > 1 ? "s" : ""} strong!` : "Start your streak!"}
               </span>
             </div>
@@ -140,12 +140,12 @@ export default function CreditsPage() {
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                         isClaimed
-                          ? "bg-emerald-500 text-white shadow-md shadow-emerald-200"
+                          ? "bg-emerald-400 text-slate-900 shadow-md shadow-emerald-200"
                           : isCurrent && !claimedToday
-                          ? "border-2 border-purple-500 text-purple-600 animate-pulse"
+                          ? "border-2 border-brand-purple text-brand-purple animate-pulse"
                           : isCurrent && claimedToday
-                          ? "border-2 border-gray-300 text-gray-400"
-                          : "bg-gray-100 text-gray-400"
+                          ? "border-2 border-slate-600 text-slate-400"
+                          : "bg-slate-700 text-slate-400"
                       }`}
                     >
                       {isClaimed ? (
@@ -158,7 +158,7 @@ export default function CreditsPage() {
                         day
                       )}
                     </div>
-                    <span className={`text-[10px] mt-1 font-medium ${isClaimed ? "text-emerald-600" : isCurrent ? "text-purple-600" : "text-gray-400"}`}>
+                    <span className={`text-[10px] mt-1 font-medium ${isClaimed ? "text-emerald-400" : isCurrent ? "text-brand-purple" : "text-slate-400"}`}>
                       Day {day}
                     </span>
                   </div>
