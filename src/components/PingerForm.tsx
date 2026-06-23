@@ -132,7 +132,7 @@ export default function PingerForm({
           id="serviceName" type="text" value={serviceName}
           onChange={(e) => { setServiceName(e.target.value); setErrors((p) => { const n = { ...p }; delete n.serviceName; return n; }); }}
           placeholder="e.g., API Server"
-          className={`input-field ${errors.serviceName ? "border-red-500" : ""}`}
+          className={`input-field ${errors.serviceName ? "border-rose-500" : ""}`}
           disabled={atMaxMonitors}
         />
         {errors.serviceName && <p className="text-rose-400 text-sm mt-1">{errors.serviceName}</p>}
@@ -147,7 +147,7 @@ export default function PingerForm({
           id="targetUrl" type="text" value={targetUrl}
           onChange={(e) => { setTargetUrl(e.target.value); setErrors((p) => { const n = { ...p }; delete n.targetUrl; return n; }); }}
           placeholder="https://api.example.com/health"
-          className={`input-field ${errors.targetUrl ? "border-red-500" : ""}`}
+          className={`input-field ${errors.targetUrl ? "border-rose-500" : ""}`}
           disabled={atMaxMonitors}
         />
         {errors.targetUrl && <p className="text-rose-400 text-sm mt-1">{errors.targetUrl}</p>}
