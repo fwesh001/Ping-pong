@@ -72,17 +72,17 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 py-12 px-4">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-4">
             <Image src="/ping-pong.png" alt="ping-pong" width={64} height={64} className="rounded-xl mx-auto" style={{ width: "auto", height: "auto" }} />
           </Link>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold font-poppins text-slate-100">
             Create your account
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-slate-400">
             Start monitoring your services for free
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function SignupPage() {
         <div className="card">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm flex items-center gap-2">
+              <div className="bg-rose-900 border border-rose-700 text-rose-300 rounded-lg p-3 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
               </div>
             )}
@@ -100,7 +100,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-300 mb-1"
               >
                 Email
               </label>
@@ -120,7 +120,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-300 mb-1"
               >
                 Username
               </label>
@@ -140,7 +140,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-300 mb-1"
               >
                 Full Name
               </label>
@@ -160,7 +160,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-300 mb-1"
               >
                 Password
               </label>
@@ -175,7 +175,7 @@ export default function SignupPage() {
                 minLength={8}
                 className="input-field"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 At least 8 characters
               </p>
             </div>
@@ -184,7 +184,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-300 mb-1"
               >
                 Confirm Password
               </label>
@@ -220,15 +220,15 @@ export default function SignupPage() {
 
           {/* Divider */}
           <div className="my-6 flex items-center gap-3">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-sm text-gray-500">or</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-slate-700" />
+            <span className="text-sm text-slate-400">or</span>
+            <div className="flex-1 h-px bg-slate-700" />
           </div>
 
           {/* Google OAuth */}
           <a
             href={googleOAuthUrl}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors font-medium text-gray-700"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 transition-colors font-medium text-slate-100"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -253,11 +253,11 @@ export default function SignupPage() {
         </div>
 
         {/* Login link */}
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-slate-400">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="text-blue-600 font-medium hover:underline"
+            className="text-brand-cyan font-medium hover:underline"
           >
             Sign in
           </Link>
