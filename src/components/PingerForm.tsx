@@ -158,9 +158,9 @@ export default function PingerForm({
         <h3 className="text-sm font-medium font-poppins text-slate-100 mb-1">Schedule Mode</h3>
         <p className="text-xs text-slate-400 mb-4">Choose how this monitor should run</p>
         <SchedulingTabs value={schedule} onChange={setSchedule} />
-        {errors.interval && <p className="text-red-600 text-xs mt-1">{errors.interval}</p>}
-        {errors.activeDays && <p className="text-red-600 text-xs mt-1">{errors.activeDays}</p>}
-        {errors.executeDate && <p className="text-red-600 text-xs mt-1">{errors.executeDate}</p>}
+        {errors.interval && <p className="text-rose-400 text-xs mt-1">{errors.interval}</p>}
+        {errors.activeDays && <p className="text-rose-400 text-xs mt-1">{errors.activeDays}</p>}
+        {errors.executeDate && <p className="text-rose-400 text-xs mt-1">{errors.executeDate}</p>}
       </div>
 
       {/* Cost Breakdown */}
