@@ -203,7 +203,7 @@ export default function LogsPage() {
               )}
             </div>
           )}
-          {!loading && logs.length > 0 && <p className="text-sm text-gray-500 mt-3 text-center">Showing {logs.length} of {total} logs</p>}
+          {!loading && logs.length > 0 && <p className="text-sm text-slate-400 mt-3 text-center">Showing {logs.length} of {total} logs</p>}
         </div>
       </main>
       <Footer />
