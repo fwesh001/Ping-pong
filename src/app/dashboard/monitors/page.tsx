@@ -73,7 +73,7 @@ function StatusDot({ status }: { status: string }) {
     timeout: "bg-amber-400",
     unknown: "bg-slate-600",
   };
-  return <span className={`w-2.5 h-2.5 rounded-full inline-block ${map[status] || "bg-gray-400"}`} />;
+  return <span className={`w-2.5 h-2.5 rounded-full inline-block ${map[status] || "bg-slate-600"}`} />;
 }
 
 /* ------------------------------------------------------------------ */
