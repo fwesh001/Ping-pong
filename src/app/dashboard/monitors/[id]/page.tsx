@@ -229,42 +229,42 @@ export default function MonitorDetailPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Breadcrumb */}
-          <button onClick={() => router.push("/dashboard")} className="text-blue-600 hover:underline text-sm mb-4 inline-flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard")} className="text-brand-cyan hover:underline text-sm mb-4 inline-flex items-center gap-1">
             <ChevronLeft className="w-4 h-4" /> Back to Dashboard
           </button>
 
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+              <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-2">
                 {monitor.serviceName}
-                {monitor.isOneOff && <Zap className="w-5 h-5 text-purple-500" />}
+                {monitor.isOneOff && <Zap className="w-5 h-5 text-brand-purple" />}
               </h1>
-              <p className="text-gray-500 mt-1 font-mono text-sm break-all flex items-center gap-1.5">
+              <p className="text-slate-400 mt-1 font-mono text-sm break-all flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5" /> {monitor.targetUrl}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              {monitor.isCompleted ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {monitor.isCompleted ? (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-brand-cyan">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Completed
                 </span>
               ) : monitor.startsAt && new Date(monitor.startsAt) > new Date() ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-brand-purple">
                   <CalendarClock className="w-3.5 h-3.5" /> Scheduled
                 </span>
               ) : monitor.isActive ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-emerald-400">
                   <Play className="w-3.5 h-3.5" /> Active
                 </span>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400">
                     <Pause className="w-3.5 h-3.5" /> Paused
                   </span>
                   <button
                     onClick={handleResume}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-emerald-400 hover:bg-slate-700 transition-colors"
                   >
                     <Play className="w-3.5 h-3.5" /> Resume
                   </button>
@@ -286,20 +286,20 @@ export default function MonitorDetailPage() {
           {analytics && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><CheckCircle2 className="w-3 h-3" /> Uptime (30d)</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">{monitor.uptime.toFixed(1)}%</p>
+                <p className="text-xs text-slate-400 uppercase font-medium flex items-center justify-center gap-1"><CheckCircle2 className="w-3 h-3" /> Uptime (30d)</p>
+                <p className="text-3xl font-bold text-emerald-400 mt-1">{monitor.uptime.toFixed(1)}%</p>
               </div>
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><Timer className="w-3 h-3" /> Avg Response</p>
-                <p className="text-3xl font-bold text-blue-600 mt-1">{analytics.avgResponseTimeMs ? `${analytics.avgResponseTimeMs}ms` : "—"}</p>
+                <p className="text-xs text-slate-400 uppercase font-medium flex items-center justify-center gap-1"><Timer className="w-3 h-3" /> Avg Response</p>
+                <p className="text-3xl font-bold text-brand-cyan mt-1">{analytics.avgResponseTimeMs ? `${analytics.avgResponseTimeMs}ms` : "—"}</p>
               </div>
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><BarChart3 className="w-3 h-3" /> Total Pings</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{analytics.totalPings30d}</p>
+                <p className="text-xs text-slate-400 uppercase font-medium flex items-center justify-center gap-1"><BarChart3 className="w-3 h-3" /> Total Pings</p>
+                <p className="text-3xl font-bold text-slate-100 mt-1">{analytics.totalPings30d}</p>
               </div>
               <div className="card text-center">
-                <p className="text-xs text-gray-500 uppercase font-medium flex items-center justify-center gap-1"><AlertTriangle className="w-3 h-3" /> Incidents</p>
-                <p className="text-3xl font-bold text-red-600 mt-1">{analytics.failurePings30d}</p>
+                <p className="text-xs text-slate-400 uppercase font-medium flex items-center justify-center gap-1"><AlertTriangle className="w-3 h-3" /> Incidents</p>
+                <p className="text-3xl font-bold text-rose-400 mt-1">{analytics.failurePings30d}</p>
               </div>
             </div>
           )}
@@ -307,19 +307,19 @@ export default function MonitorDetailPage() {
           {/* Uptime Timeline Grid */}
           {timelineLogs.length > 0 && (
             <div className="card mb-8">
-              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-600" /> Uptime Timeline
-                <span className="text-xs font-normal text-gray-500 ml-2">Last {timelineLogs.length} pings</span>
+              <h2 className="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-brand-cyan" /> Uptime Timeline
+                <span className="text-xs font-normal text-slate-400 ml-2">Last {timelineLogs.length} pings</span>
               </h2>
               <div className="flex flex-wrap gap-1">
                 {timelineLogs.map((log) => {
                   const color = log.status === "success"
-                    ? "bg-green-500"
+                    ? "bg-emerald-400"
                     : log.status === "timeout"
-                    ? "bg-yellow-400"
+                    ? "bg-amber-400"
                     : log.status === "failure"
-                    ? "bg-red-500"
-                    : "bg-gray-300";
+                    ? "bg-rose-400"
+                    : "bg-slate-700";
                   return (
                     <div
                       key={log.id}
@@ -329,10 +329,10 @@ export default function MonitorDetailPage() {
                   );
                 })}
               </div>
-              <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-green-500 inline-block" /> Success</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-yellow-400 inline-block" /> Timeout</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> Failure</span>
+              <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-400 inline-block" /> Success</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" /> Timeout</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-rose-400 inline-block" /> Failure</span>
               </div>
             </div>
           )}
