@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CreditDisplay from "@/components/CreditDisplay";
 import SlideOverDrawer from "@/components/ui/SlideOverDrawer";
-import SchedulingTabs, { type ScheduleFormState } from "@/components/ui/SchedulingTabs";
+import SchedulingTabs, { type ThreeModeFormState } from "@/components/ui/SchedulingTabs";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import {
   Play, Pause, Trash2, ExternalLink, Plus, Globe,
@@ -23,16 +23,14 @@ interface Monitor {
   uptime: number;
   pingInterval: number;
   isActive: boolean;
-  isOneOff: boolean;
   isCompleted: boolean;
   costPerPing: number;
   avgResponseTimeMs: number | null;
-  startsAt: string | null;
-  endsAt: string | null;
   createdAt: string;
-  scheduleType: string;
-  activeDays: string;
-  executeTime: string;
+  scheduleMode: string;
+  activeDays: string | null;
+  executeTime: string | null;
+  executeDate: string | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -96,12 +94,15 @@ export default function MonitorsPage() {
   // Form state for the drawer
   const [formName, setFormName] = useState("");
   const [formUrl, setFormUrl] = useState("");
-  const [formInterval, setFormInterval] = useState(60);
-  const [formTimeout, setFormTimeout] = useState(10000);
-  const [formSchedule, setFormSchedule] = useState<ScheduleFormState>({
-    scheduleType: "INTERVAL",
+
+  const [formSchedule, setFormSchedule] = useState<ThreeModeFormState>({
+    scheduleMode: "RECURRING",
+    pingIntervalSecs: 60,
     activeDays: [],
-    executeTime: "09:00",
+    scheduledTime: "09:00",
+    executeDate: "",
+    oneOffTime: "09:00",
+    timeoutMs: 10000,
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -162,8 +163,16 @@ export default function MonitorsPage() {
     } else {
       try { new URL(formUrl); } catch { errs.url = "Invalid URL format"; }
     }
-    if (formInterval < 60) errs.interval = "Minimum interval is 60 seconds";
-    if (formInterval > 3600) errs.interval = "Maximum interval is 3600 seconds";
+    if (formSchedule.scheduleMode === "RECURRING") {
+      if (formSchedule.pingIntervalSecs < 60) errs.interval = "Minimum interval is 60 seconds";
+      if (formSchedule.pingIntervalSecs > 3600) errs.interval = "Maximum interval is 3600 seconds";
+    }
+    if (formSchedule.scheduleMode === "SCHEDULED" && formSchedule.activeDays.length === 0) {
+      errs.activeDays = "Select at least one day";
+    }
+    if (formSchedule.scheduleMode === "ONEOFF" && !formSchedule.executeDate) {
+      errs.executeDate = "Execution date is required for one-off monitors";
+    }
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -175,13 +184,18 @@ export default function MonitorsPage() {
       const body: Record<string, any> = {
         serviceName: formName.trim(),
         targetUrl: formUrl.trim(),
-        pingInterval: formInterval,
-        timeoutMs: formTimeout,
-        isOneOff: formSchedule.scheduleType === "ONCE",
-        scheduleType: formSchedule.scheduleType,
-        activeDays: formSchedule.activeDays.join(","),
-        executeTime: formSchedule.executeTime,
+        scheduleMode: formSchedule.scheduleMode,
+        timeoutMs: formSchedule.timeoutMs,
       };
+      if (formSchedule.scheduleMode === "RECURRING") {
+        body.pingIntervalSecs = formSchedule.pingIntervalSecs;
+      } else if (formSchedule.scheduleMode === "SCHEDULED") {
+        body.activeDays = formSchedule.activeDays.join(",");
+        body.executeTime = formSchedule.scheduledTime;
+      } else if (formSchedule.scheduleMode === "ONEOFF") {
+        body.executeDate = formSchedule.executeDate ? new Date(formSchedule.executeDate).toISOString() : null;
+        body.executeTime = formSchedule.oneOffTime;
+      }
 
       const res = await fetch("/api/monitors", {
         method: "POST",
@@ -195,9 +209,8 @@ export default function MonitorsPage() {
       // Reset form
       setFormName("");
       setFormUrl("");
-      setFormInterval(60);
-      setFormTimeout(10000);
-      setFormSchedule({ scheduleType: "INTERVAL", activeDays: [], executeTime: "09:00" });
+
+      setFormSchedule({ scheduleMode: "RECURRING", pingIntervalSecs: 60, activeDays: [], scheduledTime: "09:00", executeDate: "", oneOffTime: "09:00", timeoutMs: 10000 });
       setFormErrors({});
       setDrawerOpen(false);
       await fetchData();
@@ -301,7 +314,7 @@ export default function MonitorsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="text-base font-semibold text-gray-900 truncate">{m.serviceName}</h3>
-                        {m.isOneOff && (
+                        {m.scheduleMode === "ONEOFF" && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
                             <Zap className="w-2.5 h-2.5" /> One-off
                           </span>
@@ -494,9 +507,9 @@ export default function MonitorsPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <p className="text-sm text-blue-800">
               <span className="font-semibold">Estimated Cost:</span>{" "}
-              {formSchedule.scheduleType === "ONCE"
+              {formSchedule.scheduleMode === "ONEOFF"
                 ? "25.0000 credits (flat, one-time)"
-                : `${((0.8333 * formInterval) / 3600).toFixed(5)} credits/ping (${(((0.8333 * formInterval) / 3600) * ((24 * 3600) / formInterval)).toFixed(4)} credits/day)`}
+                : `${((0.8333 * formSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits/ping (${(((0.8333 * formSchedule.pingIntervalSecs) / 3600) * ((24 * 3600) / formSchedule.pingIntervalSecs)).toFixed(4)} credits/day)`}
             </p>
           </div>
         </div>
