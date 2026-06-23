@@ -41,7 +41,7 @@ async function pingTarget(url: string, timeoutMs: number) {
   }
 }
 
-async function processMonitor(monitor: { id: string; userId: string; targetUrl: string; timeoutMs: number; costPerPing: number; isOneOff: boolean; scheduleMode: string; activeDays?: string | null; executeTime?: string | null; executeDate?: Date | null }) {
+async function processMonitor(monitor: { id: string; userId: string; targetUrl: string; timeoutMs: number; costPerPing: number; scheduleMode: string; activeDays?: string | null; executeTime?: string | null; executeDate?: Date | null }) {
   const pingResult = await pingTarget(monitor.targetUrl, monitor.timeoutMs);
   const now = new Date();
 
@@ -57,13 +57,9 @@ async function processMonitor(monitor: { id: string; userId: string; targetUrl: 
     // Update monitor based on schedule mode
     const updateData: any = { lastPingedAt: now };
     
-    if (monitor.isOneOff) {
+    if (monitor.scheduleMode === "ONEOFF") {
       updateData.isActive = false;
       updateData.isCompleted = true;
-    } else {
-      // For recurring monitors, update lastPingedAt
-      // For scheduled monitors, we might want to track the last execution
-      // For one-off monitors, already handled above
     }
     
     await tx.monitor.update({
@@ -149,7 +145,6 @@ export async function POST(req: NextRequest) {
         batch.map((monitor) => processMonitor({
           id: monitor.id, userId: monitor.userId, targetUrl: monitor.targetUrl,
           timeoutMs: monitor.timeoutMs, costPerPing: Number(monitor.costPerPing),
-          isOneOff: monitor.isOneOff,
           scheduleMode: monitor.scheduleMode,
           activeDays: monitor.activeDays,
           executeTime: monitor.executeTime,
