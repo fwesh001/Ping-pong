@@ -81,7 +81,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return (<><Navbar creditBalance={0} /><main className="flex-1"><div className="container mx-auto px-4 py-8"><div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div></div></main><Footer /></>);
+    return (<><Navbar creditBalance={0} /><main className="flex-1"><div className="container mx-auto px-4 py-8"><div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-brand-cyan border-t-transparent rounded-full animate-spin" /></div></div></main><Footer /></>);
   }
 
   if (error) {
@@ -97,20 +97,20 @@ export default function DashboardPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-2">Monitor your web services and track uptime</p>
+            <h1 className="text-3xl font-bold text-slate-100">Dashboard</h1>
+            <p className="text-slate-400 mt-2">Monitor your web services and track uptime</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <CreditDisplay balance={creditBalance} />
             <div className="card">
-              <h3 className="text-sm font-medium text-gray-500 uppercase">Active Monitors</h3>
-              <p className="text-4xl font-bold text-blue-600 mt-2">{activeMonitors.length}</p>
-              <p className="text-sm text-gray-600 mt-1">of {monitors.length} total</p>
+              <h3 className="text-sm font-medium text-slate-400 uppercase">Active Monitors</h3>
+              <p className="text-4xl font-bold text-brand-cyan mt-2">{activeMonitors.length}</p>
+              <p className="text-sm text-slate-400 mt-1">of {monitors.length} total</p>
             </div>
             <div className="card">
-              <h3 className="text-sm font-medium text-gray-500 uppercase">Avg Uptime</h3>
-              <p className="text-4xl font-bold text-green-600 mt-2">{avgUptime.toFixed(1)}%</p>
-              <p className="text-sm text-gray-600 mt-1">Last 30 days</p>
+              <h3 className="text-sm font-medium text-slate-400 uppercase">Avg Uptime</h3>
+              <p className="text-4xl font-bold text-emerald-400 mt-2">{avgUptime.toFixed(1)}%</p>
+              <p className="text-sm text-slate-400 mt-1">Last 30 days</p>
             </div>
           </div>
           <div className="mb-8">
@@ -128,10 +128,10 @@ export default function DashboardPage() {
             {monitors.length > 0 ? (
               <MonitorList monitors={monitors} onToggle={handleToggleMonitor} onDelete={(id) => { const m = monitors.find((x) => x.id === id); if (m) setDeleteTarget({ id, name: m.serviceName }); }} />
             ) : (
-              <div className="card text-center py-16">
+                <div className="card text-center py-16">
                 <Image src="/ping-pong.png" alt="ping-pong" width={80} height={80} className="rounded-xl mx-auto mb-6 opacity-40" style={{ width: "auto", height: "auto" }} />
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">No monitors yet</h3>
-                <p className="text-gray-500 mb-6 text-sm">Start monitoring your services by creating your first monitor.</p>
+                <h3 className="text-lg font-semibold text-slate-300 mb-2">No monitors yet</h3>
+                <p className="text-slate-400 mb-6 text-sm">Start monitoring your services by creating your first monitor.</p>
                 <button onClick={() => setShowAddForm(true)} className="btn-primary">Create your first monitor</button>
               </div>
             )}
