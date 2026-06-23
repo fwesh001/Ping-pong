@@ -12,29 +12,29 @@ interface StatusHeroBannerProps {
 export default function StatusHeroBanner({ status, onToggle, toggling }: StatusHeroBannerProps) {
   const config = {
     ACTIVE: {
-      bg: "bg-gradient-to-r from-green-500 to-emerald-600",
-      icon: <Activity className="w-8 h-8 text-white" />,
+      bg: "bg-slate-800",
+      icon: <Activity className="w-8 h-8 text-emerald-400" />,
       title: "Monitor Active",
       subtitle: "All systems operational — pinging on schedule",
-      btnClass: "bg-white/20 hover:bg-white/30 text-white border border-white/30",
+      btnClass: "bg-brand-cyan hover:bg-brand-cyan/90 text-slate-900 border border-transparent",
       btnLabel: "Pause",
       showPulse: true,
     },
     PAUSED: {
-      bg: "bg-gradient-to-r from-amber-400 to-yellow-500",
-      icon: <Pause className="w-8 h-8 text-white" />,
+      bg: "bg-slate-800",
+      icon: <Pause className="w-8 h-8 text-amber-400" />,
       title: "Monitor Paused",
       subtitle: "Pinging halted — no credits being consumed",
-      btnClass: "bg-white/20 hover:bg-white/30 text-white border border-white/30",
+      btnClass: "bg-brand-cyan hover:bg-brand-cyan/90 text-slate-900 border border-transparent",
       btnLabel: "Resume",
       showPulse: false,
     },
     DOWN: {
-      bg: "bg-gradient-to-r from-red-500 to-rose-600",
-      icon: <AlertTriangle className="w-8 h-8 text-white" />,
+      bg: "bg-slate-800",
+      icon: <AlertTriangle className="w-8 h-8 text-rose-400" />,
       title: "Service Down",
       subtitle: "Target is unreachable — immediate attention required",
-      btnClass: "bg-white/20 hover:bg-white/30 text-white border border-white/30",
+      btnClass: "bg-brand-cyan hover:bg-brand-cyan/90 text-slate-900 border border-transparent",
       btnLabel: "Pause",
       showPulse: false,
     },
@@ -43,7 +43,7 @@ export default function StatusHeroBanner({ status, onToggle, toggling }: StatusH
   const c = config[status];
 
   return (
-    <div className={`${c.bg} rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden`}>
+    <div className={`${c.bg} rounded-2xl p-6 md:p-8 text-slate-100 relative overflow-hidden`}> 
       {/* Background decorative circles */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -63,15 +63,15 @@ export default function StatusHeroBanner({ status, onToggle, toggling }: StatusH
             </div>
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">{c.title}</h2>
-            <p className="text-white/80 text-sm mt-0.5">{c.subtitle}</p>
+            <h2 className="text-2xl font-bold tracking-tight font-poppins">{c.title}</h2>
+            <p className="text-slate-300 text-sm mt-0.5">{c.subtitle}</p>
           </div>
         </div>
 
         <button
           onClick={onToggle}
           disabled={toggling}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${c.btnClass} disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm`}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${c.btnClass} disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {status === "PAUSED" ? (
             <Play className="w-4 h-4" />
