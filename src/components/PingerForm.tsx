@@ -23,6 +23,7 @@ const defaultThreeMode: ThreeModeFormState = {
   executeDate: "",
   oneOffTime: "09:00",
   timeoutMs: 10000,
+  maxRetries: 0,
 };
 
 export default function PingerForm({
@@ -95,6 +96,7 @@ export default function PingerForm({
       targetUrl: targetUrl.trim(),
       scheduleMode: schedule.scheduleMode,
       timeoutMs: schedule.timeoutMs,
+      maxRetries: schedule.maxRetries,
     };
 
     if (schedule.scheduleMode === "RECURRING") {
