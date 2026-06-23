@@ -83,7 +83,7 @@ export default function StatusHeroBanner({ status, onToggle, toggling }: StatusH
       </div>
 
       {/* Helper text */}
-      <p className="relative z-10 text-white/60 text-xs mt-4 pl-0 md:pl-[4.5rem]">
+      <p className="relative z-10 text-slate-300/60 text-xs mt-4 pl-0 md:pl-[4.5rem]">
         Pausing this monitor immediately halts background pings and preserves your wallet balance.
       </p>
     </div>
