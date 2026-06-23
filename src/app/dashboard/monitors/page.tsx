@@ -444,7 +444,7 @@ export default function MonitorsPage() {
               value={formName}
               onChange={(e) => { setFormName(e.target.value); setFormErrors((p) => { const n = { ...p }; delete n.name; return n; }); }}
               placeholder="e.g., API Server"
-              className={`input-field ${formErrors.name ? "border-red-500" : ""}`}
+              className={`input-field ${formErrors.name ? "border-rose-500" : ""}`}
             />
             {formErrors.name && <p className="text-red-600 text-xs mt-1">{formErrors.name}</p>}
           </div>
