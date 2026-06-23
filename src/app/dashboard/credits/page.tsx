@@ -188,20 +188,20 @@ export default function CreditsPage() {
               <p className="text-gray-600">
                 Claim <span className="font-bold text-blue-600">{DAILY_REWARD} credits</span> every 24 hours for free!
               </p>
-              {streakCount >= 7 && (
-                <p className="text-purple-600 text-sm mt-2 font-medium flex items-center justify-center gap-1">
+                {streakCount >= 7 && (
+                <p className="text-brand-purple text-sm mt-2 font-medium flex items-center justify-center gap-1">
                   <Star className="w-4 h-4" /> You&apos;ve completed a full streak cycle!
                 </p>
               )}
             </div>
 
             {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 text-sm mb-4">
+              <div className="bg-emerald-900 border border-emerald-700 text-emerald-300 rounded-lg p-3 text-sm mb-4">
                 {message}
               </div>
             )}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-4">
+              <div className="bg-rose-900 border border-rose-700 text-rose-300 rounded-lg p-3 text-sm mb-4">
                 {error}
               </div>
             )}
@@ -221,7 +221,7 @@ export default function CreditsPage() {
             )}
 
             {claimedToday && lastClaimedAt && (
-              <p className="text-sm text-gray-500 mt-3">
+              <p className="text-sm text-slate-400 mt-3">
                 Come back in {Math.ceil(24 - (Date.now() - new Date(lastClaimedAt).getTime()) / (60 * 60 * 1000))} hours!
               </p>
             )}
@@ -229,12 +229,12 @@ export default function CreditsPage() {
 
           {/* Info */}
           <div className="card mt-6">
-            <h3 className="font-semibold text-gray-900 mb-3">How Credits Work</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-start gap-2"><span className="text-blue-600 mt-0.5">•</span><span>Each ping costs credits based on your monitor&apos;s interval</span></li>
-              <li className="flex items-start gap-2"><span className="text-blue-600 mt-0.5">•</span><span>Claim {DAILY_REWARD} free credits every 24 hours</span></li>
-              <li className="flex items-start gap-2"><span className="text-purple-600 mt-0.5">•</span><span>Maintain a 7-day streak for a +25 bonus reward!</span></li>
-              <li className="flex items-start gap-2"><span className="text-red-600 mt-0.5">•</span><span>Miss a day and your streak resets to 0</span></li>
+            <h3 className="font-semibold text-slate-100 mb-3">How Credits Work</h3>
+            <ul className="space-y-2 text-sm text-slate-400">
+              <li className="flex items-start gap-2"><span className="text-brand-cyan mt-0.5">•</span><span>Each ping costs credits based on your monitor&apos;s interval</span></li>
+              <li className="flex items-start gap-2"><span className="text-brand-cyan mt-0.5">•</span><span>Claim {DAILY_REWARD} free credits every 24 hours</span></li>
+              <li className="flex items-start gap-2"><span className="text-brand-purple mt-0.5">•</span><span>Maintain a 7-day streak for a +25 bonus reward!</span></li>
+              <li className="flex items-start gap-2"><span className="text-rose-400 mt-0.5">•</span><span>Miss a day and your streak resets to 0</span></li>
             </ul>
           </div>
         </div>
