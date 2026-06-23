@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,71 +8,65 @@ datasource db {
 }
 
 model User {
-  id                String     @id @default(cuid())
-  fluxUserId        String     @unique
-  creditBalance     Float      @default(100.0)
-  streakCount       Int        @default(0)
-  lastClaimedAt     DateTime?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-
-  monitors          Monitor[]
-  pingLogs          PingLog[]
-  dailyCredits      DailyCreditClaim[]
+  id            String             @id @default(cuid())
+  fluxUserId    String             @unique
+  creditBalance Float              @default(100.0)
+  streakCount   Int                @default(0)
+  lastClaimedAt DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  dailyCredits  DailyCreditClaim[]
+  monitors      Monitor[]
+  pingLogs      PingLog[]
 }
 
 model Monitor {
-  id                String     @id @default(cuid())
-  userId            String
-  serviceName       String
-  targetUrl         String
-  // 3-Mode Scheduling Engine
-  scheduleMode      String     @default("RECURRING")
-  pingIntervalSecs  Int?
-  timeoutMs         Int        @default(10000)
-  activeDays        String?
-  executeTime       String?
-  executeDate       DateTime?
-  // Status & lifecycle
-  isActive          Boolean    @default(true)
-  status            String     @default("ACTIVE")
-  isCompleted       Boolean    @default(false)
-  costPerPing       Float      @default(0.01389)
-  lastPingedAt      DateTime?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-
-  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pingLogs          PingLog[]
+  id               String    @id @default(cuid())
+  userId           String
+  serviceName      String
+  targetUrl        String
+  scheduleMode     String    @default("RECURRING")
+  pingIntervalSecs Int?
+  timeoutMs        Int       @default(10000)
+  activeDays       String?
+  executeTime      String?
+  executeDate      DateTime?
+  isActive         Boolean   @default(true)
+  status           String    @default("ACTIVE")
+  isCompleted      Boolean   @default(false)
+  costPerPing      Float     @default(0.01389)
+  lastPingedAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pingLogs         PingLog[]
 
   @@index([userId])
 }
 
 model PingLog {
-  id                String     @id @default(cuid())
-  monitorId         String
-  userId            String
-  status            String
-  responseTimeMs    Int?
-  statusCode        Int?
-  errorMessage      String?
-  checkedAt         DateTime
-  createdAt         DateTime   @default(now())
-
-  monitor           Monitor    @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String   @id @default(cuid())
+  monitorId      String
+  userId         String
+  status         String
+  responseTimeMs Int?
+  statusCode     Int?
+  errorMessage   String?
+  checkedAt      DateTime
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monitor        Monitor  @relation(fields: [monitorId], references: [id], onDelete: Cascade)
 
   @@index([monitorId])
   @@index([userId])
 }
 
 model DailyCreditClaim {
-  id                String     @id @default(cuid())
-  userId            String
-  claimedAt         DateTime
-  createdAt         DateTime   @default(now())
-
-  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  claimedAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, claimedAt])
   @@index([userId])
