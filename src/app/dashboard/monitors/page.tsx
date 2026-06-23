@@ -28,6 +28,7 @@ interface Monitor {
   avgResponseTimeMs: number | null;
   createdAt: string;
   scheduleMode: string;
+  maxRetries: number;
   activeDays: string | null;
   executeTime: string | null;
   executeDate: string | null;
@@ -103,6 +104,7 @@ export default function MonitorsPage() {
     executeDate: "",
     oneOffTime: "09:00",
     timeoutMs: 10000,
+    maxRetries: 0,
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -186,6 +188,7 @@ export default function MonitorsPage() {
         targetUrl: formUrl.trim(),
         scheduleMode: formSchedule.scheduleMode,
         timeoutMs: formSchedule.timeoutMs,
+        maxRetries: formSchedule.maxRetries,
       };
       if (formSchedule.scheduleMode === "RECURRING") {
         body.pingIntervalSecs = formSchedule.pingIntervalSecs;
@@ -210,7 +213,7 @@ export default function MonitorsPage() {
       setFormName("");
       setFormUrl("");
 
-      setFormSchedule({ scheduleMode: "RECURRING", pingIntervalSecs: 60, activeDays: [], scheduledTime: "09:00", executeDate: "", oneOffTime: "09:00", timeoutMs: 10000 });
+      setFormSchedule({ scheduleMode: "RECURRING", pingIntervalSecs: 60, activeDays: [], scheduledTime: "09:00", executeDate: "", oneOffTime: "09:00", timeoutMs: 10000, maxRetries: 0 });
       setFormErrors({});
       setDrawerOpen(false);
       await fetchData();
@@ -477,6 +480,11 @@ export default function MonitorsPage() {
                 ? "25.0000 credits (flat, one-time)"
                 : `${((0.8333 * formSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits/ping (${(((0.8333 * formSchedule.pingIntervalSecs) / 3600) * ((24 * 3600) / formSchedule.pingIntervalSecs)).toFixed(4)} credits/day)`}
             </p>
+            {formSchedule.maxRetries > 0 && formSchedule.scheduleMode !== "ONEOFF" && (
+              <p className="text-xs text-amber-700 mt-2">
+                + {formSchedule.maxRetries} retry attempt(s) × {((0.8333 * formSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits each if ping fails
+              </p>
+            )}
           </div>
         </div>
       </SlideOverDrawer>
