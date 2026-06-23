@@ -47,17 +47,17 @@ export default function SlideOverDrawer({ isOpen, onClose, title, children, foot
       {/* Drawer Panel */}
       <div
         ref={panelRef}
-        className="relative w-full max-w-lg bg-white shadow-2xl flex flex-col animate-slide-in"
+        className="relative w-full max-w-lg bg-slate-800 border-l border-slate-700 flex flex-col animate-slide-in"
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
         {/* Sticky Header */}
-        <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800">
+          <h2 className="text-lg font-bold text-slate-100 font-poppins">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 transition-colors"
             aria-label="Close drawer"
           >
             <X className="w-5 h-5" />
@@ -71,7 +71,7 @@ export default function SlideOverDrawer({ isOpen, onClose, title, children, foot
 
         {/* Sticky Footer */}
         {footer && (
-          <div className="flex-shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex-shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-700 bg-slate-800">
             {footer}
           </div>
         )}
