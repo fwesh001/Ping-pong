@@ -41,7 +41,7 @@ async function pingTarget(url: string, timeoutMs: number) {
   }
 }
 
-async function processMonitor(monitor: { id: string; userId: string; targetUrl: string; timeoutMs: number; costPerPing: number; isOneOff: boolean }) {
+async function processMonitor(monitor: { id: string; userId: string; targetUrl: string; timeoutMs: number; costPerPing: number; isOneOff: boolean; scheduleMode: string; activeDays?: string | null; executeTime?: string | null; executeDate?: Date | null }) {
   const pingResult = await pingTarget(monitor.targetUrl, monitor.timeoutMs);
   const now = new Date();
 
@@ -53,10 +53,24 @@ async function processMonitor(monitor: { id: string; userId: string; targetUrl: 
         errorMessage: pingResult.errorMessage, checkedAt: now,
       },
     });
+    
+    // Update monitor based on schedule mode
+    const updateData: any = { lastPingedAt: now };
+    
+    if (monitor.isOneOff) {
+      updateData.isActive = false;
+      updateData.isCompleted = true;
+    } else {
+      // For recurring monitors, update lastPingedAt
+      // For scheduled monitors, we might want to track the last execution
+      // For one-off monitors, already handled above
+    }
+    
     await tx.monitor.update({
       where: { id: monitor.id },
-      data: { lastPingedAt: now, ...(monitor.isOneOff ? { isActive: false, isCompleted: true } : {}) },
+      data: updateData,
     });
+    
     await tx.user.update({
       where: { id: monitor.userId },
       data: { creditBalance: { decrement: monitor.costPerPing } },
@@ -87,16 +101,37 @@ export async function POST(req: NextRequest) {
     const eligibleMonitors = activeMonitors.filter((m) => {
       const balance = Number(m.user.creditBalance);
       if (balance <= 0) return false;
-      // Skip scheduled monitors that haven't started yet
-      if (m.startsAt && now < m.startsAt) return false;
-      // Skip scheduled monitors that have ended
-      if (m.endsAt && now > m.endsAt) return false;
-      // One-off monitors: always eligible (they run once then mark completed)
-      if (m.isOneOff) return true;
-      // Recurring: check if due based on interval
-      if (!m.lastPingedAt) return true;
-      const nextPingTime = new Date(m.lastPingedAt.getTime() + m.pingIntervalSecs * 1000);
-      return now >= nextPingTime;
+      
+      // Handle different schedule modes
+      switch (m.scheduleMode) {
+        case "RECURRING":
+          // Recurring monitors: check if due based on interval
+          if (!m.pingIntervalSecs) return false;
+          if (!m.lastPingedAt) return true;
+          const nextPingTime = new Date(m.lastPingedAt.getTime() + m.pingIntervalSecs * 1000);
+          return now >= nextPingTime;
+        
+        case "SCHEDULED":
+          // Scheduled monitors: check if current day is in activeDays and time matches
+          if (!m.activeDays || !m.executeTime) return false;
+          const currentDay = now.toLocaleDateString("en-US", { weekday: "long" });
+          const daysArray = m.activeDays.split(",").map(d => d.trim());
+          if (!daysArray.includes(currentDay)) return false;
+          
+          // Check if scheduled time has passed today
+          const [execHour, execMin] = m.executeTime.split(":").map(Number);
+          const execTime = new Date(now);
+          execTime.setHours(execHour, execMin, 0, 0);
+          return now >= execTime;
+        
+        case "ONEOFF":
+          // One-off monitors: check if executeDate has passed
+          if (!m.executeDate) return false;
+          return now >= m.executeDate;
+        
+        default:
+          return false;
+      }
     });
 
     results.totalDue = eligibleMonitors.length;
@@ -115,6 +150,10 @@ export async function POST(req: NextRequest) {
           id: monitor.id, userId: monitor.userId, targetUrl: monitor.targetUrl,
           timeoutMs: monitor.timeoutMs, costPerPing: Number(monitor.costPerPing),
           isOneOff: monitor.isOneOff,
+          scheduleMode: monitor.scheduleMode,
+          activeDays: monitor.activeDays,
+          executeTime: monitor.executeTime,
+          executeDate: monitor.executeDate,
         }))
       );
 
