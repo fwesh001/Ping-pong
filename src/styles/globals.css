@@ -10,24 +10,37 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  /* map font variables exported by next/font/google */
+  --font-display: var(--font-poppins);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetmono);
+}
+
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply bg-slate-900 text-slate-100;
+  font-family: var(--font-sans);
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors;
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-brand-cyan text-slate-900 font-medium hover:bg-brand-cyan/90 transition-colors;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-200 text-gray-900 font-medium hover:bg-gray-300 transition-colors;
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-700 text-slate-200 font-medium hover:bg-slate-700/95 transition-colors border border-slate-700;
   }
 
   .card {
-    @apply bg-white rounded-lg border border-gray-200 p-6 shadow-sm;
+    @apply bg-slate-800 rounded-lg border border-slate-700 p-6;
   }
 
   .input-field {
-    @apply w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors;
+    @apply w-full px-4 py-2 rounded-lg border border-slate-700 bg-slate-800 text-slate-100 focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/30 transition-colors;
   }
+}
+
+@layer utilities {
+  .font-poppins { font-family: var(--font-display) !important; }
+  .font-mono-var { font-family: var(--font-mono) !important; }
 }
