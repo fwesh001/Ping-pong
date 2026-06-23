@@ -74,21 +74,21 @@ export default function LogsPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "success": return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case "failure": return <XCircle className="w-4 h-4 text-red-500" />;
-      case "timeout": return <Clock className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertTriangle className="w-4 h-4 text-gray-400" />;
+      case "success": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+      case "failure": return <XCircle className="w-4 h-4 text-rose-400" />;
+      case "timeout": return <Clock className="w-4 h-4 text-amber-400" />;
+      default: return <AlertTriangle className="w-4 h-4 text-slate-400" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      success: "bg-green-100 text-green-800",
-      failure: "bg-red-100 text-red-800",
-      timeout: "bg-yellow-100 text-yellow-800",
+      success: "bg-emerald-400 text-slate-900",
+      failure: "bg-rose-400 text-slate-900",
+      timeout: "bg-amber-400 text-slate-900",
     };
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] || "bg-gray-100 text-gray-600"}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] || "bg-slate-700 text-slate-300"}`}>
         {getStatusIcon(status)}
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
