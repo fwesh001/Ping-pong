@@ -19,18 +19,18 @@ export default function VolleyLoader({ size = "md", message }: VolleyLoaderProps
   return (
     <div className="flex flex-col items-center gap-4">
       <div
-        className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-gradient-to-b from-gray-50 to-gray-100"
+        className="relative rounded-xl overflow-hidden border-2 border-slate-700 bg-slate-800"
         style={{ width: d.w, height: d.h }}
       >
         {/* Center line */}
         <div
-          className="absolute top-0 bottom-0 left-1/2 w-px border-l-2 border-dashed border-gray-300"
+          className="absolute top-0 bottom-0 left-1/2 w-px border-l-2 border-dashed border-slate-600"
           style={{ transform: "translateX(-50%)" }}
         />
 
         {/* Left paddle (purple) */}
         <div
-          className="absolute bg-purple-500 rounded-sm"
+          className="absolute bg-brand-purple rounded-sm"
           style={{
             width: d.paddleW, height: d.paddleH, left: 6, top: "50%",
             transform: "translateY(-50%)",
@@ -40,7 +40,7 @@ export default function VolleyLoader({ size = "md", message }: VolleyLoaderProps
 
         {/* Right paddle (blue) */}
         <div
-          className="absolute bg-blue-500 rounded-sm"
+          className="absolute bg-brand-cyan rounded-sm"
           style={{
             width: d.paddleW, height: d.paddleH, right: 6, top: "50%",
             transform: "translateY(-50%)",
@@ -50,7 +50,7 @@ export default function VolleyLoader({ size = "md", message }: VolleyLoaderProps
 
         {/* Ball */}
         <div
-          className="absolute rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-300/50"
+          className="absolute rounded-full bg-gradient-to-br from-brand-cyan to-brand-cyan/80 shadow-lg"
           style={{
             width: d.ballR * 2, height: d.ballR * 2, top: "50%", left: "50%",
             transform: "translate(-50%, -50%)",
@@ -60,7 +60,7 @@ export default function VolleyLoader({ size = "md", message }: VolleyLoaderProps
 
         {/* Ball trail */}
         <div
-          className="absolute rounded-full bg-blue-300/30"
+          className="absolute rounded-full bg-brand-cyan/20"
           style={{
             width: d.ballR * 3, height: d.ballR * 3, top: "50%", left: "50%",
             transform: "translate(-50%, -50%)",
@@ -69,7 +69,7 @@ export default function VolleyLoader({ size = "md", message }: VolleyLoaderProps
         />
       </div>
 
-      {message && <p className="text-sm text-gray-500 font-medium animate-pulse">{message}</p>}
+      {message && <p className="text-sm text-slate-400 font-medium animate-pulse">{message}</p>}
 
       <style jsx>{`
         @keyframes paddleLeft {
