@@ -146,13 +146,15 @@ export async function fluxLogin(
       return res.json() as Promise<FluxLoginResponse>;
     }
 
-    // If this is the last attempt or it's not a server error, throw immediately
-    const isServerError = res.status >= 500;
     const data = await res.json().catch(() => ({}));
     const message =
       typeof data.detail === "string" ? data.detail : "Invalid credentials";
 
-    if (attempt === maxRetries || !isServerError) {
+    // Retry on server errors (5xx) or on 400 from PgBouncer connection issues.
+    // PgBouncer issues cause Flux to return 400 "Incorrect email or password"
+    // even when credentials are correct, because the DB query fails silently.
+    const isRetryable = res.status >= 500 || (res.status === 400 && attempt < maxRetries);
+    if (attempt === maxRetries || !isRetryable) {
       throw new Error(message);
     }
 
