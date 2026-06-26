@@ -48,15 +48,22 @@ async function fluxFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${FLUX_API_BASE}${path}`;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  const maxRetries = 3;
+  const retryDelay = 500;
 
-  if (!res.ok) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+
+    if (res.ok) {
+      return res.json() as Promise<T>;
+    }
+
     let message = `Flux API error ${res.status}`;
     try {
       const body = await res.json();
@@ -70,10 +77,18 @@ async function fluxFetch<T>(
     } catch {
       /* ignore parse errors */
     }
+
+    // Retry on server errors (5xx) or intermittent 400s from PgBouncer
+    const isRetryable = res.status >= 500 || res.status === 429;
+    if (attempt < maxRetries && isRetryable) {
+      await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt));
+      continue;
+    }
+
     throw new Error(message);
   }
 
-  return res.json() as Promise<T>;
+  throw new Error("Flux API error: max retries exceeded");
 }
 
 // ---------------------------------------------------------------------------
@@ -104,6 +119,9 @@ export async function fluxSignup(
 /**
  * Log in with email/username + password via OAuth2 form-urlencoded flow.
  * Returns { access_token, token_type }.
+ *
+ * Includes retry logic (up to 3 attempts) to handle intermittent
+ * PgBouncer/Supabase connection pooling issues on the Flux backend.
  */
 export async function fluxLogin(
   emailOrUsername: string,
@@ -114,24 +132,35 @@ export async function fluxLogin(
   body.append("password", password);
 
   const url = `${FLUX_API_BASE}/login/access-token`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
-  });
+  const maxRetries = 3;
+  const retryDelay = 500; // ms
 
-  if (!res.ok) {
-    let message = "Invalid credentials";
-    try {
-      const data = await res.json();
-      if (typeof data.detail === "string") message = data.detail;
-    } catch {
-      /* ignore */
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+
+    if (res.ok) {
+      return res.json() as Promise<FluxLoginResponse>;
     }
-    throw new Error(message);
+
+    // If this is the last attempt or it's not a server error, throw immediately
+    const isServerError = res.status >= 500;
+    const data = await res.json().catch(() => ({}));
+    const message =
+      typeof data.detail === "string" ? data.detail : "Invalid credentials";
+
+    if (attempt === maxRetries || !isServerError) {
+      throw new Error(message);
+    }
+
+    // Wait before retrying
+    await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt));
   }
 
-  return res.json() as Promise<FluxLoginResponse>;
+  throw new Error("Invalid credentials");
 }
 
 /**
