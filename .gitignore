@@ -50,3 +50,5 @@ Ping-pong.code-workspace
 .env.example
 prisma/dev.db
 notes.md
+
+/.agents/
