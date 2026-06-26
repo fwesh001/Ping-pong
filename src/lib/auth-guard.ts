@@ -15,7 +15,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { fluxGetMe, FluxUser } from "@/lib/flux";
 import prisma from "@/lib/db";
-import { Decimal } from "@prisma/client/runtime/library";
 
 export interface AuthUser {
   id: string;
@@ -23,6 +22,8 @@ export interface AuthUser {
   creditBalance: number;
   email: string;
   username: string;
+  role: string;
+  monitorSlots: number;
 }
 
 export interface AuthResult {
@@ -31,19 +32,17 @@ export interface AuthResult {
 }
 
 /**
- * Require authentication for an API route.
+ * Require authentication for an API route or server component.
  * Returns either the auth data or a NextResponse error.
  */
 export async function requireAuth(
-  req: NextRequest
+  req?: NextRequest
 ): Promise<AuthResult | NextResponse> {
-  // 1. Get session token
   const token = await getSession();
   if (!token) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  // 2. Validate with Flux
   let fluxUser: FluxUser;
   try {
     fluxUser = await fluxGetMe(token);
@@ -56,7 +55,6 @@ export async function requireAuth(
 
   const fluxUserId = String(fluxUser.id);
 
-  // 3. Get local user
   const localUser = await prisma.user.findUnique({
     where: { fluxUserId },
   });
@@ -68,19 +66,31 @@ export async function requireAuth(
     );
   }
 
-  // 4. Convert Decimal creditBalance to number
-  const creditBalance = Number(localUser.creditBalance);
-
   return {
     user: {
       id: localUser.id,
       fluxUserId: localUser.fluxUserId,
-      creditBalance,
+      creditBalance: Number(localUser.creditBalance),
       email: fluxUser.email,
       username: fluxUser.username,
+      role: localUser.role,
+      monitorSlots: localUser.monitorSlots,
     },
     fluxUser,
   };
+}
+
+export async function requireAdmin(
+  req?: NextRequest
+): Promise<AuthResult | NextResponse> {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+
+  if (auth.user.role !== "ADMIN" && auth.user.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+  }
+
+  return auth;
 }
 
 /**
