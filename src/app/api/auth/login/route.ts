@@ -63,12 +63,13 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("Login error:", error.message);
+    console.error("Login error:", error.message, error.stack);
 
     if (
       error.message.toLowerCase().includes("invalid") ||
       error.message.toLowerCase().includes("credential") ||
-      error.message.toLowerCase().includes("unauthorized")
+      error.message.toLowerCase().includes("unauthorized") ||
+      error.message.toLowerCase().includes("incorrect")
     ) {
       return NextResponse.json(
         { error: "Invalid email or password" },
