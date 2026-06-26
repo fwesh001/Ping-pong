@@ -12,7 +12,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, calculatePingCost } from "@/lib/auth-guard";
 import prisma from "@/lib/db";
 
-const MAX_ACTIVE_MONITORS = 5;
 const MIN_INTERVAL_SECS = 60;
 const ONE_OFF_FLAT_COST = 25.0;
 
@@ -222,8 +221,8 @@ export async function POST(req: NextRequest) {
     const activeCount = await prisma.monitor.count({
       where: { userId: auth.user.id, isActive: true, isCompleted: false },
     });
-    if (activeCount >= MAX_ACTIVE_MONITORS) {
-      return NextResponse.json({ error: `Maximum of ${MAX_ACTIVE_MONITORS} active monitors reached.` }, { status: 403 });
+    if (activeCount >= auth.user.monitorSlots) {
+      return NextResponse.json({ error: `Maximum of ${auth.user.monitorSlots} active monitors reached.` }, { status: 403 });
     }
 
     const isOneOff = scheduleMode === "ONEOFF";
