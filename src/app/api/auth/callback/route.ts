@@ -57,8 +57,23 @@ export async function GET(req: NextRequest) {
       localUser = await prisma.user.create({
         data: {
           fluxUserId,
+          email: fluxUser.email,
           creditBalance: INITIAL_CREDIT_BALANCE,
+          monitorSlots: 2,
         },
+      });
+
+      await prisma.notification.create({
+        data: {
+          userId: localUser.id,
+          type: "WELCOME",
+          message: "Welcome to ping-pong! You have received 100 credits and 2 monitor slots to get started.",
+        },
+      });
+    } else if (!localUser.email) {
+      await prisma.user.update({
+        where: { id: localUser.id },
+        data: { email: fluxUser.email || localUser.email },
       });
     }
 
