@@ -151,36 +151,37 @@ export default function StorePage() {
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all hover:-translate-y-1 p-6 ${
+                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 p-6 ${
                         isPopular
-                          ? "border-brand-cyan scale-105 shadow-lg shadow-brand-cyan/20"
+                          ? "border-cyan-500 scale-105 shadow-lg shadow-cyan-500/20"
                           : "border-slate-700"
                       }`}
                     >
-                      {/* Cyan radial blob top-right */}
-                      <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-brand-cyan/20 blur-3xl" />
+                      {/* Aurora mesh: two cyan nodes */}
+                      <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-3xl aurora-node-a" />
+                      <div className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-3xl aurora-node-b" />
 
                       {isPopular && (
-                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-cyan text-slate-950">
+                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500 text-slate-50 z-20">
                           Most popular
                         </span>
                       )}
 
-                      <div className="relative">
-                        <div className="w-10 h-10 rounded-lg bg-brand-cyan/10 border border-brand-cyan/30 flex items-center justify-center mb-4">
-                          <Zap className="w-5 h-5 text-brand-cyan" />
+                      <div className="relative z-10 flex flex-col flex-1">
+                        <div className="flex items-center gap-2 text-slate-300 mb-4">
+                          <Coins className="w-4 h-4 text-brand-cyan" />
+                          <span className="text-sm font-medium">{pkg.credits} credits</span>
                         </div>
-                        <p className="text-sm text-slate-400">₦{pkg.price}</p>
-                        <p className="text-2xl font-bold text-slate-100 mt-1">{pkg.credits}</p>
-                        <p className="text-xs text-slate-500 mt-1">credits</p>
+                        <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                        <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
                         <button
                           onClick={() =>
                             handleCheckout({ type: "credit", price: pkg.price, credits: pkg.credits })
                           }
                           className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
                             isPopular
-                              ? "bg-brand-cyan text-slate-950 hover:bg-brand-cyan/90"
-                              : "border border-slate-600 text-slate-200 hover:border-brand-cyan hover:text-brand-cyan"
+                              ? "bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+                              : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
                           }`}
                         >
                           Checkout
@@ -210,38 +211,39 @@ export default function StorePage() {
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all hover:-translate-y-1 p-6 ${
+                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 p-6 ${
                         isPopular
-                          ? "border-brand-purple scale-105 shadow-lg shadow-brand-purple/20"
+                          ? "border-purple-500 scale-105 shadow-lg shadow-purple-500/20"
                           : "border-slate-700"
                       }`}
                     >
-                      {/* Purple radial blob bottom-left */}
-                      <div className="pointer-events-none absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-brand-purple/20 blur-3xl" />
+                      {/* Aurora mesh: two purple nodes */}
+                      <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-purple-500/20 blur-3xl aurora-node-a" />
+                      <div className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/20 blur-3xl aurora-node-b" />
 
                       {isPopular && (
-                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-purple text-slate-100">
+                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500 text-white z-20">
                           Most popular
                         </span>
                       )}
 
-                      <div className="relative">
-                        <div className="w-10 h-10 rounded-lg bg-brand-purple/10 border border-brand-purple/30 flex items-center justify-center mb-4">
-                          <Server className="w-5 h-5 text-brand-purple" />
+                      <div className="relative z-10 flex flex-col flex-1">
+                        <div className="flex items-center gap-2 text-slate-300 mb-4">
+                          <Server className="w-4 h-4 text-brand-purple" />
+                          <span className="text-sm font-medium">
+                            {pkg.slots} additional slot{pkg.slots > 1 ? "s" : ""}
+                          </span>
                         </div>
-                        <p className="text-sm text-slate-400">₦{pkg.price}</p>
-                        <p className="text-2xl font-bold text-slate-100 mt-1">{pkg.slots}</p>
-                        <p className="text-xs text-slate-500 mt-1">
-                          additional slot{pkg.slots > 1 ? "s" : ""}
-                        </p>
+                        <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                        <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
                         <button
                           onClick={() =>
                             handleCheckout({ type: "slot", price: pkg.price, slots: pkg.slots })
                           }
                           className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
                             isPopular
-                              ? "bg-brand-purple text-slate-100 hover:bg-brand-purple/90"
-                              : "border border-slate-600 text-slate-200 hover:border-brand-purple hover:text-brand-purple"
+                              ? "bg-purple-500 text-white hover:bg-purple-400"
+                              : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
                           }`}
                         >
                           Checkout
@@ -269,34 +271,21 @@ export default function StorePage() {
               </div>
               <div className="grid gap-4 xl:grid-cols-3">
                 {premiumPackages.map((pkg) => {
-                  const isPopular = pkg.popular;
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all hover:-translate-y-1 p-6 ${
-                        isPopular
-                          ? "border-brand-cyan scale-105 shadow-lg shadow-brand-cyan/20"
-                          : "border-slate-700"
-                      }`}
+                      className="flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border border-slate-700 transition-all duration-300 hover:-translate-y-1 p-6"
                     >
-                      {/* Both gradient blobs for premium */}
-                      <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-brand-cyan/20 blur-3xl" />
-                      <div className="pointer-events-none absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-brand-purple/20 blur-3xl" />
+                      {/* Aurora mesh: cyan + purple nebula */}
+                      <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/15 blur-3xl aurora-node-a" />
+                      <div className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/15 blur-3xl aurora-node-b" />
 
-                      {isPopular && (
-                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-cyan text-slate-950">
-                          Most popular
-                        </span>
-                      )}
-
-                      <div className="relative">
-                        <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-4">
-                          <Crown className="w-5 h-5 text-amber-400" />
+                      <div className="relative z-10 flex flex-col flex-1">
+                        <div className="flex items-center gap-2 text-slate-300 mb-4">
+                          <Crown className="w-4 h-4 text-amber-400" />
+                          <span className="text-sm font-medium">{pkg.title}</span>
                         </div>
-                        <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
-                          {pkg.title}
-                        </p>
-                        <p className="text-3xl font-bold text-slate-100 mt-2">₦{pkg.price}</p>
+                        <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
                         <ul className="mt-5 space-y-3 text-slate-300 text-sm">
                           <li className="flex items-start gap-2">
                             <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
@@ -319,11 +308,7 @@ export default function StorePage() {
                           onClick={() =>
                             handleCheckout({ type: "premium", price: pkg.price, tier: pkg.title })
                           }
-                          className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
-                            isPopular
-                              ? "bg-brand-cyan text-slate-950 hover:bg-brand-cyan/90"
-                              : "border border-slate-600 text-slate-200 hover:border-brand-cyan hover:text-brand-cyan"
-                          }`}
+                          className="mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors border border-slate-600 text-slate-300 hover:bg-slate-700/50"
                         >
                           Checkout
                           <ArrowRight className="w-4 h-4" />
