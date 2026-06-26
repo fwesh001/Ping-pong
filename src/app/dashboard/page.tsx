@@ -33,6 +33,7 @@ interface Monitor {
 export default function DashboardPage() {
   const [monitors, setMonitors] = useState<Monitor[]>([]);
   const [creditBalance, setCreditBalance] = useState<number>(0);
+  const [monitorSlots, setMonitorSlots] = useState<number>(5);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -41,19 +42,32 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     try {
       const meRes = await fetch("/api/auth/me");
-      if (!meRes.ok) { if (meRes.status === 401) { window.location.href = "/login"; return; } throw new Error("Auth failed"); }
+      if (!meRes.ok) {
+        if (meRes.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        throw new Error("Auth failed");
+      }
+
       const meData = await meRes.json();
       setCreditBalance(meData.user.creditBalance);
+      setMonitorSlots(meData.user.monitorSlots ?? 5);
+
       const monRes = await fetch("/api/monitors");
       if (!monRes.ok) throw new Error("Failed to fetch monitors");
       const monData = await monRes.json();
       setMonitors(monData.monitors || []);
     } catch (err: any) {
       setError(err.message || "Failed to load dashboard data");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAddMonitor = async (newMonitor: any) => {
     try {
@@ -119,7 +133,7 @@ export default function DashboardPage() {
             ) : (
               <div className="card">
                 <h2 className="text-2xl font-bold mb-4">Add New Monitor</h2>
-                <PingerForm onSubmit={handleAddMonitor} onCancel={() => setShowAddForm(false)} activeMonitorCount={activeMonitors.length} maxMonitors={5} />
+                <PingerForm onSubmit={handleAddMonitor} onCancel={() => setShowAddForm(false)} activeMonitorCount={activeMonitors.length} maxMonitors={monitorSlots} />
               </div>
             )}
           </div>
