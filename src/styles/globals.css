@@ -44,3 +44,24 @@ body {
   .font-poppins { font-family: var(--font-display) !important; }
   .font-mono-var { font-family: var(--font-mono) !important; }
 }
+
+/* Aurora mesh animations */
+@keyframes aurora-drift-a {
+  0%   { transform: translate(0%, 0%); opacity: 0.15; }
+  50%  { transform: translate(60%, 60%); opacity: 0.30; }
+  100% { transform: translate(0%, 0%); opacity: 0.15; }
+}
+
+@keyframes aurora-drift-b {
+  0%   { transform: translate(0%, 0%); opacity: 0.10; }
+  50%  { transform: translate(-60%, -60%); opacity: 0.25; }
+  100% { transform: translate(0%, 0%); opacity: 0.10; }
+}
+
+.aurora-node-a {
+  animation: aurora-drift-a 12s ease-in-out infinite;
+}
+
+.aurora-node-b {
+  animation: aurora-drift-b 14s ease-in-out infinite;
+}
