@@ -151,23 +151,29 @@ export default function StorePage() {
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 p-6 ${
+                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 ${
                         isPopular
                           ? "border-cyan-500 scale-105 shadow-lg shadow-cyan-500/20"
                           : "border-slate-700"
                       }`}
                     >
-                      {/* Aurora mesh: two cyan nodes */}
-                      <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-3xl aurora-node-a" />
-                      <div className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-3xl aurora-node-b" />
+                      {/* Aurora mesh: two cyan nodes with inline animation styles */}
+                      <div
+                        className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
+                        style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
+                      <div
+                        className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
+                        style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
 
                       {isPopular && (
-                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500 text-slate-50 z-20">
+                        <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500 text-slate-50 z-20 whitespace-nowrap">
                           Most popular
                         </span>
                       )}
 
-                      <div className="relative z-10 flex flex-col flex-1">
+                      <div className={`relative z-10 flex flex-col flex-1 ${isPopular ? "pt-8" : ""}`}>
                         <div className="flex items-center gap-2 text-slate-300 mb-4">
                           <Coins className="w-4 h-4 text-brand-cyan" />
                           <span className="text-sm font-medium">{pkg.credits} credits</span>
@@ -211,23 +217,29 @@ export default function StorePage() {
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 p-6 ${
+                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 ${
                         isPopular
                           ? "border-purple-500 scale-105 shadow-lg shadow-purple-500/20"
                           : "border-slate-700"
                       }`}
                     >
-                      {/* Aurora mesh: two purple nodes */}
-                      <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-purple-500/20 blur-3xl aurora-node-a" />
-                      <div className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/20 blur-3xl aurora-node-b" />
+                      {/* Aurora mesh: two purple nodes with inline animation styles */}
+                      <div
+                        className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
+                        style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
+                      <div
+                        className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
+                        style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
 
                       {isPopular && (
-                        <span className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500 text-white z-20">
+                        <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500 text-white z-20 whitespace-nowrap">
                           Most popular
                         </span>
                       )}
 
-                      <div className="relative z-10 flex flex-col flex-1">
+                      <div className={`relative z-10 flex flex-col flex-1 ${isPopular ? "pt-8" : ""}`}>
                         <div className="flex items-center gap-2 text-slate-300 mb-4">
                           <Server className="w-4 h-4 text-brand-purple" />
                           <span className="text-sm font-medium">
@@ -276,9 +288,15 @@ export default function StorePage() {
                       key={pkg.price}
                       className="flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border border-slate-700 transition-all duration-300 hover:-translate-y-1 p-6"
                     >
-                      {/* Aurora mesh: cyan + purple nebula */}
-                      <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/15 blur-3xl aurora-node-a" />
-                      <div className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/15 blur-3xl aurora-node-b" />
+                      {/* Aurora mesh: cyan + purple nebula with inline animation styles */}
+                      <div
+                        className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/15 blur-[60px]"
+                        style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
+                      <div
+                        className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/15 blur-[60px]"
+                        style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
 
                       <div className="relative z-10 flex flex-col flex-1">
                         <div className="flex items-center gap-2 text-slate-300 mb-4">
