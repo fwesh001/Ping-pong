@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { CreditCard, LogOut, ChevronDown, LayoutDashboard, CalendarCheck, ScrollText } from "lucide-react";
+import { CreditCard, LogOut, ChevronDown, LayoutDashboard, CalendarCheck, ScrollText, Bell, ShoppingCart, ShieldCheck } from "lucide-react";
 
 interface NavbarProps {
   creditBalance: number;
@@ -14,6 +14,23 @@ export default function Navbar({ creditBalance }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadRole() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) return;
+        const data = await res.json();
+        setRole(data.user.role || null);
+      } catch {
+        setRole(null);
+      }
+    }
+    loadRole();
+  }, []);
+
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -39,9 +56,23 @@ export default function Navbar({ creditBalance }: NavbarProps) {
               <LayoutDashboard className="w-4 h-4" />
               Dashboard
             </Link>
+            {isAdmin && (
+              <Link href="/admin" className="text-slate-300 hover:text-brand-cyan transition-colors hidden sm:flex items-center gap-1.5 text-sm">
+                <ShieldCheck className="w-4 h-4" />
+                Admin
+              </Link>
+            )}
             <Link href="/dashboard/logs" className="text-slate-300 hover:text-brand-cyan transition-colors hidden sm:flex items-center gap-1.5 text-sm">
               <ScrollText className="w-4 h-4" />
               Logs
+            </Link>
+            <Link href="/dashboard/notifications" className="text-slate-300 hover:text-brand-cyan transition-colors hidden sm:flex items-center gap-1.5 text-sm">
+              <Bell className="w-4 h-4" />
+              Notifications
+            </Link>
+            <Link href="/dashboard/store" className="text-slate-300 hover:text-brand-cyan transition-colors hidden sm:flex items-center gap-1.5 text-sm">
+              <ShoppingCart className="w-4 h-4" />
+              Store
             </Link>
             <Link href="/dashboard/credits" className="text-slate-300 hover:text-brand-cyan transition-colors flex items-center gap-1.5 text-sm">
               <CalendarCheck className="w-4 h-4" />
@@ -67,6 +98,11 @@ export default function Navbar({ creditBalance }: NavbarProps) {
                   <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700 sm:hidden" onClick={() => setMenuOpen(false)}>
                     <LayoutDashboard className="w-4 h-4" /> Dashboard
                   </Link>
+                  {isAdmin && (
+                    <Link href="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" onClick={() => setMenuOpen(false)}>
+                      <ShieldCheck className="w-4 h-4" /> Admin
+                    </Link>
+                  )}
                   <Link href="/dashboard/logs" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" onClick={() => setMenuOpen(false)}>
                     <ScrollText className="w-4 h-4" /> Logs
                   </Link>
