@@ -60,8 +60,10 @@ body {
 
 .aurora-node-a {
   animation: aurora-drift-a 12s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .aurora-node-b {
   animation: aurora-drift-b 14s ease-in-out infinite;
+  will-change: transform, opacity;
 }
