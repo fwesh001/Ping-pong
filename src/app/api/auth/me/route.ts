@@ -46,6 +46,8 @@ export async function GET(req: NextRequest) {
         creditBalance: localUser.creditBalance,
         streakCount: localUser.streakCount,
         lastClaimedAt: localUser.lastClaimedAt,
+        monitorSlots: localUser.monitorSlots,
+        role: localUser.role,
         email: fluxUser.email,
         username: fluxUser.username,
         fullName: fluxUser.full_name,
