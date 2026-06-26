@@ -38,7 +38,6 @@ const premiumPackages = [
     credits: 500,
     interval: "1-min intervals",
     retries: "Max 1 Retry",
-    popular: false,
   },
   {
     price: 7500,
@@ -47,7 +46,6 @@ const premiumPackages = [
     credits: 2000,
     interval: "30-sec intervals",
     retries: "Max 2 Retries",
-    popular: true,
   },
   {
     price: 10500,
@@ -56,7 +54,6 @@ const premiumPackages = [
     credits: 7000,
     interval: "10-sec intervals",
     retries: "Priority cron execution",
-    popular: false,
   },
 ];
 
