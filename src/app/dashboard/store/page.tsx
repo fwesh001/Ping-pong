@@ -151,48 +151,53 @@ export default function StorePage() {
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 ${
-                        isPopular
-                          ? "border-cyan-500 scale-105 shadow-lg shadow-cyan-500/20"
-                          : "border-slate-700"
+                      className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                        isPopular ? "scale-105" : ""
                       }`}
                     >
-                      {/* Aurora mesh: two cyan nodes with inline animation styles */}
-                      <div
-                        className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
-                        style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
-                      />
-                      <div
-                        className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
-                        style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
-                      />
-
                       {isPopular && (
-                        <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500 text-slate-50 z-20 whitespace-nowrap">
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500 text-slate-50 z-20 whitespace-nowrap shadow-lg shadow-cyan-500/30">
                           Most popular
                         </span>
                       )}
+                      <div
+                        className={`flex flex-col flex-1 relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border p-6 ${
+                          isPopular
+                            ? "border-cyan-500 shadow-lg shadow-cyan-500/20"
+                            : "border-slate-700"
+                        }`}
+                      >
+                        {/* Aurora mesh: two cyan nodes with inline animation styles */}
+                        <div
+                          className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
+                        <div
+                          className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
 
-                      <div className={`relative z-10 flex flex-col flex-1 ${isPopular ? "pt-8" : ""}`}>
-                        <div className="flex items-center gap-2 text-slate-300 mb-4">
-                          <Coins className="w-4 h-4 text-brand-cyan" />
-                          <span className="text-sm font-medium">{pkg.credits} credits</span>
+                        <div className="relative z-10 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 text-slate-300 mb-4">
+                            <Coins className="w-4 h-4 text-brand-cyan" />
+                            <span className="text-sm font-medium">{pkg.credits} credits</span>
+                          </div>
+                          <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                          <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
+                          <button
+                            onClick={() =>
+                              handleCheckout({ type: "credit", price: pkg.price, credits: pkg.credits })
+                            }
+                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                              isPopular
+                                ? "bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+                                : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                            }`}
+                          >
+                            Checkout
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
                         </div>
-                        <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
-                        <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
-                        <button
-                          onClick={() =>
-                            handleCheckout({ type: "credit", price: pkg.price, credits: pkg.credits })
-                          }
-                          className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
-                            isPopular
-                              ? "bg-cyan-500 text-slate-950 hover:bg-cyan-400"
-                              : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
-                          }`}
-                        >
-                          Checkout
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
                       </div>
                     </div>
                   );
@@ -217,50 +222,55 @@ export default function StorePage() {
                   return (
                     <div
                       key={pkg.price}
-                      className={`flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border transition-all duration-300 hover:-translate-y-1 ${
-                        isPopular
-                          ? "border-purple-500 scale-105 shadow-lg shadow-purple-500/20"
-                          : "border-slate-700"
+                      className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                        isPopular ? "scale-105" : ""
                       }`}
                     >
-                      {/* Aurora mesh: two purple nodes with inline animation styles */}
-                      <div
-                        className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
-                        style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
-                      />
-                      <div
-                        className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
-                        style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
-                      />
-
                       {isPopular && (
-                        <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500 text-white z-20 whitespace-nowrap">
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500 text-white z-20 whitespace-nowrap shadow-lg shadow-purple-500/30">
                           Most popular
                         </span>
                       )}
+                      <div
+                        className={`flex flex-col flex-1 relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border p-6 ${
+                          isPopular
+                            ? "border-purple-500 shadow-lg shadow-purple-500/20"
+                            : "border-slate-700"
+                        }`}
+                      >
+                        {/* Aurora mesh: two purple nodes with inline animation styles */}
+                        <div
+                          className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
+                        <div
+                          className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
 
-                      <div className={`relative z-10 flex flex-col flex-1 ${isPopular ? "pt-8" : ""}`}>
-                        <div className="flex items-center gap-2 text-slate-300 mb-4">
-                          <Server className="w-4 h-4 text-brand-purple" />
-                          <span className="text-sm font-medium">
-                            {pkg.slots} additional slot{pkg.slots > 1 ? "s" : ""}
-                          </span>
+                        <div className="relative z-10 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 text-slate-300 mb-4">
+                            <Server className="w-4 h-4 text-brand-purple" />
+                            <span className="text-sm font-medium">
+                              {pkg.slots} additional slot{pkg.slots > 1 ? "s" : ""}
+                            </span>
+                          </div>
+                          <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                          <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
+                          <button
+                            onClick={() =>
+                              handleCheckout({ type: "slot", price: pkg.price, slots: pkg.slots })
+                            }
+                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                              isPopular
+                                ? "bg-purple-500 text-white hover:bg-purple-400"
+                                : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                            }`}
+                          >
+                            Checkout
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
                         </div>
-                        <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
-                        <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
-                        <button
-                          onClick={() =>
-                            handleCheckout({ type: "slot", price: pkg.price, slots: pkg.slots })
-                          }
-                          className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
-                            isPopular
-                              ? "bg-purple-500 text-white hover:bg-purple-400"
-                              : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
-                          }`}
-                        >
-                          Checkout
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
                       </div>
                     </div>
                   );
