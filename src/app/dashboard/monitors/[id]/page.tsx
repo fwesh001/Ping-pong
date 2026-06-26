@@ -74,8 +74,6 @@ export default function MonitorDetailPage() {
 
   // Edit state
   const [editName, setEditName] = useState("");
-  const [editInterval, setEditInterval] = useState(60);
-  const [editTimeout, setEditTimeout] = useState(10000);
   const [editStartsAt, setEditStartsAt] = useState("");
   const [editEndsAt, setEditEndsAt] = useState("");
   const [isScheduled, setIsScheduled] = useState(false);
@@ -122,8 +120,6 @@ export default function MonitorDetailPage() {
 
       // Initialize edit state
       setEditName(monData.monitor.serviceName);
-      setEditInterval(monData.monitor.pingInterval);
-      setEditTimeout(monData.monitor.timeoutMs);
       setEditStartsAt(monData.monitor.startsAt ? monData.monitor.startsAt.slice(0, 16) : "");
       setEditEndsAt(monData.monitor.endsAt ? monData.monitor.endsAt.slice(0, 16) : "");
       setIsScheduled(!!monData.monitor.startsAt);
@@ -252,8 +248,6 @@ export default function MonitorDetailPage() {
 
   const hasChanges = monitor && (
     editName !== monitor.serviceName ||
-    editInterval !== monitor.pingInterval ||
-    editTimeout !== monitor.timeoutMs ||
     isOneOff !== monitor.isOneOff ||
     isScheduled !== !!monitor.startsAt ||
     formSchedule.pingIntervalSecs !== monitor.pingInterval ||
@@ -404,54 +398,31 @@ export default function MonitorDetailPage() {
                 <input type="text" value={monitor.targetUrl} readOnly className="input-field bg-slate-800 text-slate-400" />
               </div>
 
-              {/* Interval + Timeout */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Ping Interval (seconds)</label>
-                  <input type="number" value={editInterval} onChange={(e) => setEditInterval(Number(e.target.value))} min={60} max={3600} className="input-field" />
-                  <p className="text-xs text-slate-400 mt-1">Minimum 60 seconds</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Timeout (ms)</label>
-                  <input type="number" value={editTimeout} onChange={(e) => setEditTimeout(Number(e.target.value))} min={1000} max={60000} className="input-field" />
-                </div>
-              </div>
-
               {/* Scheduling */}
               <div className="border-t border-slate-700 pt-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-100">Scheduling</h3>
-                    <p className="text-xs text-slate-400">Configure when this monitor should run</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={isScheduled} onChange={(e) => setIsScheduled(e.target.checked)} className="sr-only peer" />
-                    <div className="w-11 h-6 bg-slate-700 peer-focus:ring-2 peer-focus:ring-brand-cyan rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-cyan"></div>
-                  </label>
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-slate-100">Scheduling</h3>
+                  <p className="text-xs text-slate-400">Configure when this monitor should run</p>
                 </div>
 
-                {isScheduled && (
-                  <div className="space-y-4 bg-slate-800 rounded-lg p-4">
-                    <SchedulingTabs
-                      value={formSchedule}
-                      onChange={(s) => {
-                        setFormSchedule(s);
-                        setIsOneOff(s.scheduleMode === "ONEOFF");
-                        setEditInterval(s.pingIntervalSecs);
-                        setEditTimeout(s.timeoutMs);
-                      }}
-                    />
-                  </div>
-                )}
+                <div className="space-y-4 bg-slate-800 rounded-lg p-4">
+                  <SchedulingTabs
+                    value={formSchedule}
+                    onChange={(s) => {
+                      setFormSchedule(s);
+                      setIsOneOff(s.scheduleMode === "ONEOFF");
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Cost info */}
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
                 <p className="text-sm text-slate-200">
                   <span className="font-semibold">Cost:</span>{" "}
-                  {isOneOff
+                  {isOneOff || formSchedule.scheduleMode === "ONEOFF"
                     ? "25.0000 credits (flat, one-time charge)"
-                    : `${((0.8333 * editInterval) / 3600).toFixed(5)} credits/ping (${(((0.8333 * editInterval) / 3600) * ((24 * 3600) / editInterval)).toFixed(4)} credits/day)`}
+                    : `${((0.8333 * formSchedule.pingIntervalSecs) / 3600).toFixed(5)} credits/ping (${(((0.8333 * formSchedule.pingIntervalSecs) / 3600) * ((24 * 3600) / formSchedule.pingIntervalSecs)).toFixed(4)} credits/day)`}
                 </p>
               </div>
 
