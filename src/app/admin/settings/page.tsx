@@ -17,6 +17,7 @@ export default function AdminSettingsPage() {
 
   const [creditCostPerPing, setCreditCostPerPing] = useState(0.01389);
   const [globalPause, setGlobalPause] = useState(false);
+  const [pollIntervalMs, setPollIntervalMs] = useState(1000);
 
   useEffect(() => {
     const load = async () => {
@@ -28,6 +29,7 @@ export default function AdminSettingsPage() {
         setSettings(data.settings);
         setCreditCostPerPing(data.settings.creditCostPerPing);
         setGlobalPause(data.settings.globalPause);
+        setPollIntervalMs(data.settings.pollIntervalMs ?? 1000);
       } catch (err: any) {
         setError(err.message || "Unable to load settings");
       } finally {
@@ -45,7 +47,7 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ creditCostPerPing, globalPause }),
+        body: JSON.stringify({ creditCostPerPing, globalPause, pollIntervalMs }),
       });
       if (!res.ok) {
         const body = await res.json();
@@ -87,6 +89,19 @@ export default function AdminSettingsPage() {
                 min={0}
                 className="input-field bg-slate-900 text-slate-100"
               />
+            </label>
+
+            <label className="space-y-2 text-sm text-slate-300">
+              <span>Poll interval (ms)</span>
+              <input
+                type="number"
+                value={pollIntervalMs}
+                onChange={(e) => setPollIntervalMs(Number(e.target.value))}
+                step={100}
+                min={100}
+                className="input-field bg-slate-900 text-slate-100"
+              />
+              <p className="text-slate-500 text-xs">How often the worker checks for due monitors (in milliseconds). Default: 1000ms (1 second).</p>
             </label>
 
             <label className="flex items-center justify-between rounded-3xl border border-slate-800 bg-slate-900 px-4 py-4 text-sm text-slate-200">
