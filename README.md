@@ -1,6 +1,6 @@
 # ping-pong: Uptime Monitoring SaaS
 
-A web-based SaaS platform built with **Next.js**, **React**, and **Tailwind CSS** that allows users to monitor the uptime of their web services. Features Flux-based authentication, automated cron-based pinging, and a gamified credit system.
+A web-based   SaaS platform built with **Next.js**, **React**, and **Tailwind CSS** that allows users to monitor the uptime of their web services. Features Flux-based authentication, automated cron-based pinging, and a gamified credit system.
 
 ## Project Structure
 
