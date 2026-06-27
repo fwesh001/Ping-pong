@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
       data: {
         creditCostPerPing: 0.01389,
         globalPause: false,
+        pollIntervalMs: 1000,
       },
     });
   }
@@ -24,7 +25,7 @@ export async function PATCH(req: NextRequest) {
   if (auth instanceof NextResponse) return auth;
 
   const body = await req.json();
-  const { creditCostPerPing, globalPause } = body;
+  const { creditCostPerPing, globalPause, pollIntervalMs } = body;
 
   let settings = await prisma.siteSettings.findFirst();
   if (!settings) {
@@ -32,6 +33,7 @@ export async function PATCH(req: NextRequest) {
       data: {
         creditCostPerPing: typeof creditCostPerPing === "number" ? creditCostPerPing : 0.01389,
         globalPause: typeof globalPause === "boolean" ? globalPause : false,
+        pollIntervalMs: typeof pollIntervalMs === "number" ? pollIntervalMs : 1000,
       },
     });
   } else {
@@ -40,6 +42,7 @@ export async function PATCH(req: NextRequest) {
       data: {
         creditCostPerPing: typeof creditCostPerPing === "number" ? creditCostPerPing : settings.creditCostPerPing,
         globalPause: typeof globalPause === "boolean" ? globalPause : settings.globalPause,
+        pollIntervalMs: typeof pollIntervalMs === "number" ? pollIntervalMs : settings.pollIntervalMs,
       },
     });
   }
