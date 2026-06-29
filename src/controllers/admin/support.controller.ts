@@ -21,6 +21,11 @@ function getActingUserId(req: Request): string | null {
   return typeof value === "string" ? value : null;
 }
 
+function getParamId(req: Request): string | undefined {
+  const id = req.params.id;
+  return Array.isArray(id) ? id[0] : id;
+}
+
 export async function listTickets(req: Request, res: Response) {
   const type = getString(req, "type");
   const status = getString(req, "status");
@@ -70,7 +75,7 @@ export async function listTickets(req: Request, res: Response) {
 }
 
 export async function getTicket(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Ticket ID is required" });
   }
@@ -90,7 +95,7 @@ export async function getTicket(req: Request, res: Response) {
 }
 
 export async function updateTicketStatus(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Ticket ID is required" });
   }
@@ -120,6 +125,7 @@ export async function updateTicketStatus(req: Request, res: Response) {
         title: "Support Update",
         message: `Admin response to your ${existingTicket.type} ticket: ${reply}`,
         targetAudience: "INDIVIDUAL",
+        readBy: [],
       },
     });
   }
@@ -135,7 +141,7 @@ export async function updateTicketStatus(req: Request, res: Response) {
 }
 
 export async function deleteTicket(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Ticket ID is required" });
   }
