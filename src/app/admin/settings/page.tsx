@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { Shield, AlertTriangle, Save, RotateCcw } from "lucide-react";
+import { Shield, AlertTriangle, Save, RotateCcw, Pause, Play } from "lucide-react";
 import { adminApi } from "@/lib/admin-api";
 
 interface GlobalSettings {
@@ -36,6 +36,7 @@ export default function AdminSettingsPage() {
   const [lockdownNewMonitors, setLockdownNewMonitors] = useState(false);
   const [lockdownMessage, setLockdownMessage] = useState("");
   const [pollIntervalMs, setPollIntervalMs] = useState(1000);
+  const [globalPause, setGlobalPause] = useState(false);
 
   // Danger zone modal state
   const [resetModal, setResetModal] = useState<ResetActionType>(null);
@@ -53,6 +54,7 @@ export default function AdminSettingsPage() {
       setLockdownNewMonitors(data.settings.lockdownNewMonitors);
       setLockdownMessage(data.settings.lockdownMessage);
       setPollIntervalMs(data.settings.pollIntervalMs);
+      setGlobalPause(data.settings.globalPause);
     } catch (err: any) {
       setError(err.message || "Unable to load settings");
     } finally {
@@ -74,6 +76,23 @@ export default function AdminSettingsPage() {
       fetchSettings();
     } catch (err: any) {
       setError(err.message || "Unable to save maintenance settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleCronEngine = async () => {
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const newPauseState = !globalPause;
+      await adminApi.put("/settings", { globalPause: newPauseState });
+      setGlobalPause(newPauseState);
+      setSuccess(newPauseState ? "Cron engine paused." : "Cron engine resumed.");
+      fetchSettings();
+    } catch (err: any) {
+      setError(err.message || "Unable to toggle cron engine");
     } finally {
       setSaving(false);
     }
@@ -199,6 +218,48 @@ export default function AdminSettingsPage() {
                 <Save className="w-3 h-3" />
                 Save Maintenance Settings
               </button>
+            </div>
+          </div>
+
+          {/* Section 1.5: Cron Engine Controls */}
+          <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
+            <div className="mb-4 flex items-center gap-2">
+              {globalPause ? <Pause className="w-5 h-5 text-rose-400" /> : <Play className="w-5 h-5 text-emerald-400" />}
+              <h2 className="text-lg font-semibold text-slate-100">Cron Engine Controls</h2>
+            </div>
+            <div className="space-y-4">
+              <label className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 px-4 py-4">
+                <div>
+                  <p className="font-medium text-slate-100">
+                    {globalPause ? "Cron Engine Paused" : "Cron Engine Running"}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {globalPause
+                      ? "All scheduled pings are currently disabled. Click to resume."
+                      : "All scheduled pings are running. Click to pause globally."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={globalPause}
+                  onClick={handleToggleCronEngine}
+                  disabled={saving}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition disabled:opacity-50 ${
+                    globalPause ? "bg-rose-500" : "bg-emerald-500"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                      globalPause ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </label>
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <div className={`h-2 w-2 rounded-full ${globalPause ? "bg-rose-500" : "bg-emerald-500 animate-pulse"}`} />
+                {globalPause ? "Paused" : "Active"}
+              </div>
             </div>
           </div>
 
