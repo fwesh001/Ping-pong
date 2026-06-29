@@ -21,6 +21,11 @@ function getActingUserId(req: Request): string | null {
   return typeof value === "string" ? value : null;
 }
 
+function getParamId(req: Request): string | undefined {
+  const id = req.params.id;
+  return Array.isArray(id) ? id[0] : id;
+}
+
 export async function listMonitors(req: Request, res: Response) {
   const search = getString(req, "search");
   const status = getString(req, "status");
@@ -80,7 +85,7 @@ export async function listMonitors(req: Request, res: Response) {
 }
 
 export async function getMonitor(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Monitor ID is required" });
   }
@@ -101,7 +106,7 @@ export async function getMonitor(req: Request, res: Response) {
 }
 
 export async function updateMonitor(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Monitor ID is required" });
   }
@@ -136,7 +141,7 @@ export async function updateMonitor(req: Request, res: Response) {
 }
 
 export async function deleteMonitor(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Monitor ID is required" });
   }
@@ -158,7 +163,7 @@ export async function deleteMonitor(req: Request, res: Response) {
 }
 
 export async function toggleMonitorStatus(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Monitor ID is required" });
   }
