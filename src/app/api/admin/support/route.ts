@@ -62,6 +62,7 @@ export async function PATCH(req: NextRequest) {
         title: "Support Update",
         message: `Admin response: ${reply}`,
         targetAudience: "INDIVIDUAL",
+        readBy: [],
       },
     });
   }
