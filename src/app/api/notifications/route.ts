@@ -30,19 +30,41 @@ export async function PATCH(req: NextRequest) {
   const action = body.action;
 
   if (action === "markAllRead") {
-    const result = await prisma.notification.updateMany({
-      where: { userId: auth.user.id, isRead: false },
-      data: { isRead: true },
+    const notifications = await prisma.notification.findMany({
+      where: { userId: auth.user.id },
     });
-    return NextResponse.json({ message: "All notifications marked as read", updated: result.count });
+
+    await Promise.all(
+      notifications.map((notification) =>
+        prisma.notification.update({
+          where: { id: notification.id },
+          data: {
+            readBy: Array.from(new Set([...(notification.readBy || []), auth.user.id])),
+          },
+        })
+      )
+    );
+
+    return NextResponse.json({ message: "All notifications marked as read" });
   }
 
   if (action === "markRead" && body.notificationId) {
-    const notification = await prisma.notification.updateMany({
+    const notification = await prisma.notification.findFirst({
       where: { id: body.notificationId, userId: auth.user.id },
-      data: { isRead: true },
     });
-    return NextResponse.json({ message: "Notification marked as read", updated: notification.count });
+
+    if (!notification) {
+      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
+    }
+
+    await prisma.notification.update({
+      where: { id: notification.id },
+      data: {
+        readBy: Array.from(new Set([...(notification.readBy || []), auth.user.id])),
+      },
+    });
+
+    return NextResponse.json({ message: "Notification marked as read" });
   }
 
   return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
