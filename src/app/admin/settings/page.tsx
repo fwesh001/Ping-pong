@@ -87,7 +87,7 @@ export default function AdminSettingsPage() {
     setSuccess(null);
     try {
       const newPauseState = !globalPause;
-      await adminApi.put("/settings", { globalPause: newPauseState });
+      await adminApi.put("/settings", { globalPause: newPauseState, pollIntervalMs });
       setGlobalPause(newPauseState);
       setSuccess(newPauseState ? "Cron engine paused." : "Cron engine resumed.");
       fetchSettings();
@@ -259,6 +259,18 @@ export default function AdminSettingsPage() {
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <div className={`h-2 w-2 rounded-full ${globalPause ? "bg-rose-500" : "bg-emerald-500 animate-pulse"}`} />
                 {globalPause ? "Paused" : "Active"}
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-slate-400">Check Frequency (ms)</label>
+                <input
+                  type="number"
+                  value={pollIntervalMs}
+                  onChange={(e) => setPollIntervalMs(Number(e.target.value))}
+                  step={100}
+                  min={100}
+                  className="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-100 focus:border-brand-cyan focus:outline-none"
+                />
+                <p className="mt-1 text-xs text-slate-500">How often the worker checks for due monitors. Default: 1000ms (1 second).</p>
               </div>
             </div>
           </div>
