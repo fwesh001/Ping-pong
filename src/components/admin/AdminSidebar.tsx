@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  ArrowLeft,
 } from "lucide-react";
 
 const navItems = [
@@ -135,8 +136,31 @@ export default function AdminSidebar() {
           })}
         </nav>
 
+        {/* Back to App link */}
+        <div className={`mt-6 mb-2 ${collapsed ? "flex justify-center" : ""}`}>
+          <Link
+            href="/dashboard"
+            onMouseEnter={() => setHoveredItem("__back__")}
+            onMouseLeave={() => setHoveredItem(null)}
+            className={`flex items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 text-sm text-slate-400 hover:border-slate-700 hover:bg-slate-800/60 hover:text-slate-100 transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? "justify-center" : "w-full"}`}
+          >
+            <ArrowLeft className="w-[18px] h-[18px] flex-shrink-0" />
+            {!collapsed && <span className="truncate">Back to App</span>}
+          </Link>
+          {collapsed && hoveredItem === "__back__" && (
+            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 pointer-events-none">
+              <div className="rounded-lg bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-100 whitespace-nowrap shadow-xl">
+                Back to App
+                <div className="absolute right-full top-1/2 -translate-y-1/2 -mr-px">
+                  <div className="w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-slate-700" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Collapse toggle button (desktop only) */}
-        <div className={`mt-4 pt-4 border-t border-slate-800 ${collapsed ? "flex justify-center" : ""}`}>
+        <div className={`mt-2 pt-4 border-t border-slate-800 ${collapsed ? "flex justify-center" : ""}`}>
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={`flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-800/50 px-3 py-2 text-xs text-slate-400 hover:border-slate-600 hover:text-slate-200 transition-colors ${collapsed ? "justify-center" : "w-full"}`}
