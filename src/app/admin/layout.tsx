@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-guard";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) {
@@ -15,21 +17,16 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col xl:flex-row gap-6">
-          <aside className="w-full xl:w-80 rounded-3xl border border-slate-800 bg-slate-900/95 p-6 shadow-lg shadow-black/20">
-            <div className="mb-8">
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Admin Workspace</p>
-              <h1 className="text-2xl font-bold text-slate-100 mt-3">Control Center</h1>
-              <p className="text-slate-400 mt-2 text-sm">Manage users, monitors, support tickets, and global settings.</p>
-            </div>
-            <AdminSidebar />
-          </aside>
+      <div className="flex">
+        {/* Sidebar */}
+        <AdminSidebar />
 
-          <main className="min-w-0 flex-1 rounded-3xl border border-slate-800 bg-slate-900/95 p-6 shadow-lg shadow-black/20">
+        {/* Main content area - offset by sidebar width */}
+        <main className="flex-1 min-w-0 xl:ml-[260px] p-4 pt-16 xl:pt-6 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/95 p-6 shadow-lg shadow-black/20">
             {children}
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   );
