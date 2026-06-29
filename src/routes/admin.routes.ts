@@ -33,6 +33,10 @@ import {
   toggleMaintenanceMode,
   updateSettings,
 } from "../controllers/admin/settings.controller";
+import {
+  handleWebhook,
+  initializePayment,
+} from "../controllers/admin/payment.controller";
 
 const router = Router();
 
@@ -56,6 +60,10 @@ router.post("/packages", createCreditPackage);
 router.put("/packages/:id", updateCreditPackage);
 router.delete("/packages/:id", deleteCreditPackage);
 router.get("/transactions", listTransactions);
+
+// Payments (Flutterwave)
+router.post("/initialize-payment", initializePayment);
+router.post("/webhook", handleWebhook);
 
 // Support
 router.get("/tickets", listTickets);
