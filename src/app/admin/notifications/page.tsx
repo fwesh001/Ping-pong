@@ -135,7 +135,7 @@ export default function AdminNotificationsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Messaging</p>
         <h1 className="mt-3 text-3xl font-bold text-slate-100">Notification Dispatch &amp; Logs</h1>

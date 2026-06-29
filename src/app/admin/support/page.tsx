@@ -119,7 +119,7 @@ export default function AdminSupportPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Helpdesk</p>
         <h1 className="mt-3 text-3xl font-bold text-slate-100">Support &amp; Ticket Center</h1>
