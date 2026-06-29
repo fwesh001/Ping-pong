@@ -1,16 +1,8 @@
 import { ReactNode } from "react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-guard";
-
-const navItems = [
-  { href: "/admin", label: "Overview" },
-  { href: "/admin/support", label: "Support & Reports" },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/monitors", label: "Monitors" },
-  { href: "/admin/settings", label: "Settings" },
-];
+import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const auth = await requireAdmin();
@@ -31,17 +23,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               <h1 className="text-2xl font-bold text-slate-100 mt-3">Control Center</h1>
               <p className="text-slate-400 mt-2 text-sm">Manage users, monitors, support tickets, and global settings.</p>
             </div>
-            <nav className="space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-200 transition hover:border-brand-cyan hover:bg-slate-900"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <AdminSidebar />
           </aside>
 
           <main className="min-w-0 flex-1 rounded-3xl border border-slate-800 bg-slate-900/95 p-6 shadow-lg shadow-black/20">
