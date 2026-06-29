@@ -70,6 +70,7 @@ export async function GET(req: NextRequest) {
           title: "Welcome",
           message: "Welcome to ping-pong! You have received 100 credits and 2 monitor slots to get started.",
           targetAudience: "INDIVIDUAL",
+          readBy: [],
         },
       });
     } else if (!localUser.email) {
