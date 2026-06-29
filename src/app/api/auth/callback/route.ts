@@ -67,7 +67,9 @@ export async function GET(req: NextRequest) {
         data: {
           userId: localUser.id,
           type: "WELCOME",
+          title: "Welcome",
           message: "Welcome to ping-pong! You have received 100 credits and 2 monitor slots to get started.",
+          targetAudience: "INDIVIDUAL",
         },
       });
     } else if (!localUser.email) {
