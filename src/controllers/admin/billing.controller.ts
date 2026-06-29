@@ -7,6 +7,11 @@ function getActingUserId(req: Request): string | null {
   return typeof value === "string" ? value : null;
 }
 
+function getParamId(req: Request): string | undefined {
+  const id = req.params.id;
+  return Array.isArray(id) ? id[0] : id;
+}
+
 export async function listCreditPackages(_req: Request, res: Response) {
   const packages = await prisma.creditPackage.findMany({
     orderBy: { createdAt: "desc" },
@@ -38,7 +43,7 @@ export async function createCreditPackage(req: Request, res: Response) {
 }
 
 export async function updateCreditPackage(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Package ID is required" });
   }
@@ -70,7 +75,7 @@ export async function updateCreditPackage(req: Request, res: Response) {
 }
 
 export async function deleteCreditPackage(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "Package ID is required" });
   }
