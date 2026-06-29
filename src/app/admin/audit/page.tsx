@@ -69,15 +69,15 @@ export default function AdminAuditPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Audit</p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-100">System Audit Logs</h1>
-        <p className="text-slate-400 mt-2">Review administrative actions and system events.</p>
+        <h1 className="mt-2 text-3xl font-bold text-slate-100">System Audit Logs</h1>
+        <p className="text-slate-400 mt-1">Review administrative actions and system events.</p>
       </div>
 
       {/* Analytics Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AdminStatCard
           title="Total Logs"
           metric={stats.total}

@@ -117,11 +117,11 @@ export default function AdminUsersPage() {
     <div className="space-y-4">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Directory</p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-100">User Management</h1>
-        <p className="text-slate-400 mt-2">Search, filter, and manage registered users.</p>
+        <h1 className="mt-2 text-3xl font-bold text-slate-100">User Management</h1>
+        <p className="text-slate-400 mt-1">Search, filter, and manage registered users.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AdminStatCard title="Total Users" metric={stats.total} icon={Users} colorTint="text-slate-100" />
         <AdminStatCard title="Active Users" metric={stats.active} subtitle="currently active" icon={Users} colorTint="text-emerald-400" />
         <AdminStatCard title="Administrators" metric={stats.admins} subtitle="admin / super admin" icon={ShieldCheck} colorTint="text-brand-cyan" />

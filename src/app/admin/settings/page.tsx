@@ -154,11 +154,11 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Configuration</p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-100">Global Settings &amp; Security</h1>
-        <p className="text-slate-400 mt-2">Manage maintenance mode, platform lockdown, and system-wide configuration.</p>
+        <h1 className="mt-1 text-3xl font-bold text-slate-100">Global Settings &amp; Security</h1>
+        <p className="text-slate-400 mt-1">Manage maintenance mode, platform lockdown, and system-wide configuration.</p>
       </div>
 
       {success && (
@@ -173,12 +173,12 @@ export default function AdminSettingsPage() {
       ) : (
         <>
           {/* Section 1: App Maintenance Controls */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
-            <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-3xl border border-slate-800 bg-slate-950 p-4">
+            <div className="mb-2 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-400" />
               <h2 className="text-lg font-semibold text-slate-100">App Maintenance Controls</h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <label className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 px-4 py-4">
                 <div>
                   <p className="font-medium text-slate-100">Maintenance Mode</p>
@@ -276,12 +276,12 @@ export default function AdminSettingsPage() {
           </div>
 
           {/* Section 2: Platform Lockdown Settings */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
-            <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-3xl border border-slate-800 bg-slate-950 p-4">
+            <div className="mb-2 flex items-center gap-2">
               <Shield className="w-5 h-5 text-brand-cyan" />
               <h2 className="text-lg font-semibold text-slate-100">Platform Lockdown Settings</h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <label className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 px-4 py-4">
                 <div>
                   <p className="font-medium text-slate-100">Disable New Account Creation</p>
@@ -357,7 +357,7 @@ export default function AdminSettingsPage() {
           </div>
 
           {/* Section 3: System Reset Protocols (Danger Zone) */}
-          <div className="rounded-3xl border border-rose-800 bg-rose-950/30 p-6">
+          <div className="rounded-3xl border border-rose-800 bg-rose-950/30 p-4">
             <div className="mb-4 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-rose-400" />
               <h2 className="text-lg font-semibold text-rose-300">System Reset Protocols</h2>

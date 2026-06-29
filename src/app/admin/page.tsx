@@ -84,7 +84,7 @@ export default function AdminOverviewPage() {
   }, [users, monitors, transactions, tickets]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Overview</p>
         <h1 className="mt-3 text-3xl font-bold text-slate-100">Command Center Overview</h1>

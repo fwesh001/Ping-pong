@@ -148,11 +148,11 @@ export default function AdminCreditsPage() {
     <div className="space-y-4">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Billing</p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-100">Billing &amp; Revenue Control</h1>
-        <p className="text-slate-400 mt-2">Manage credit packages, pricing, and transaction history.</p>
+        <h1 className="mt-2 text-3xl font-bold text-slate-100">Billing &amp; Revenue Control</h1>
+        <p className="text-slate-400 mt-1">Manage credit packages, pricing, and transaction history.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <AdminStatCard
           title="Total Credits Sold"
           metric={stats.totalCreditsSold.toLocaleString()}

@@ -95,14 +95,14 @@ export default function AdminMonitorsPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Infrastructure</p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-100">Global Monitor Management</h1>
-        <p className="text-slate-400 mt-2">Inspect all monitors across the platform and pause or delete them as needed.</p>
+        <h1 className="mt-2 text-3xl font-bold text-slate-100">Global Monitor Management</h1>
+        <p className="text-slate-400 mt-1">Inspect all monitors across the platform and pause or delete them as needed.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AdminStatCard title="Total Configured" metric={stats.total} icon={Activity} colorTint="text-slate-100" />
         <AdminStatCard title="Active" metric={stats.active} subtitle="running now" icon={Play} colorTint="text-emerald-400" />
         <AdminStatCard title="Paused" metric={stats.paused} subtitle="manually paused" icon={Pause} colorTint="text-amber-400" />
