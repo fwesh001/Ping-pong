@@ -59,7 +59,9 @@ export async function PATCH(req: NextRequest) {
       data: {
         userId: ticket.userId,
         type: "ALERT",
+        title: "Support Update",
         message: `Admin response: ${reply}`,
+        targetAudience: "INDIVIDUAL",
       },
     });
   }
