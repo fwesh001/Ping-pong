@@ -25,6 +25,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ settings });
 }
 
+export async function PUT(req: NextRequest) {
+  return PATCH(req);
+}
+
 export async function PATCH(req: NextRequest) {
   const auth = await requireAdmin();
   if (auth instanceof NextResponse) return auth;

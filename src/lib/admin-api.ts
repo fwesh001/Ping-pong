@@ -1,4 +1,4 @@
-const ADMIN_API_BASE = "/api/v1/admin";
+const ADMIN_API_BASE = "/api/admin";
 
 export class AdminApiError extends Error {
   status: number;

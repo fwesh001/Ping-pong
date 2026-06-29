@@ -54,7 +54,7 @@ export default function AdminOverviewPage() {
         adminApi.get<{ users: DashboardUser[] }>("/users?limit=5"),
         adminApi.get<{ monitors: DashboardMonitor[] }>("/monitors?limit=100"),
         adminApi.get<{ transactions: DashboardTransaction[] }>("/transactions?limit=100"),
-        adminApi.get<{ tickets: DashboardTicket[] }>("/tickets?limit=100"),
+        adminApi.get<{ tickets: DashboardTicket[] }>("/support?limit=100"),
         adminApi.get<{ logs: DashboardLog[] }>("/logs?limit=5"),
       ]);
       setUsers(usersData.users);
