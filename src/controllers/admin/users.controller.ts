@@ -21,6 +21,11 @@ function getActingUserId(req: Request): string | null {
   return typeof value === "string" ? value : null;
 }
 
+function getParamId(req: Request): string | undefined {
+  const id = req.params.id;
+  return Array.isArray(id) ? id[0] : id;
+}
+
 export async function listUsers(req: Request, res: Response) {
   const search = getString(req, "search");
   const status = getString(req, "status");
@@ -85,7 +90,7 @@ export async function listUsers(req: Request, res: Response) {
 }
 
 export async function getUser(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
   }
@@ -107,7 +112,7 @@ export async function getUser(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
   }
@@ -174,7 +179,7 @@ export async function updateUser(req: Request, res: Response) {
 }
 
 export async function deleteUser(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
   }
@@ -196,7 +201,7 @@ export async function deleteUser(req: Request, res: Response) {
 }
 
 export async function updateUserStatus(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = getParamId(req);
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
   }
