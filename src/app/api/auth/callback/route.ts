@@ -17,6 +17,8 @@ import { fluxGetMe } from "@/lib/flux";
 import { setSession } from "@/lib/session";
 import prisma from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 const INITIAL_CREDIT_BALANCE = parseInt(
   process.env.INITIAL_CREDIT_BALANCE || "100",
   10

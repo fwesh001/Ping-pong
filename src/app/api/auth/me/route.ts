@@ -10,6 +10,8 @@ import { getSession } from "@/lib/session";
 import { fluxGetMe } from "@/lib/flux";
 import prisma from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     // 1. Get session token from cookie
