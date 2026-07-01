@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build", 
     "start": "next start",
-    "server": "ts-node -r tsconfig-paths/register src/server.ts",
-    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
+    "server": "tsx src/server.ts",
+    "dev:all": "concurrently --kill-others-on-fail --names \"server,web\" --prefix \"[{name}]\" \"npm run server\" \"npm run dev\"",
     "lint": "next lint",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
@@ -49,6 +49,7 @@
     "typescript": "^5.3.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "tsx": "^4.19.2"
   }
 }

@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import adminRoutes from "./routes/admin.routes";
+import "./cron/monitor";
 
 export function createApp(): Express {
   const app = express();
