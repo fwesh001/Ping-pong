@@ -1,318 +1,357 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import VolleyLoader from "@/components/ui/VolleyLoader";
 import {
-  Sparkles,
-  Coins,
-  CreditCard,
+  Zap,
+  Server,
   CheckCircle2,
-  Loader2,
-  ShieldCheck,
-  Star,
+  ArrowRight,
+  Crown,
+  Coins,
 } from "lucide-react";
 
-interface UserProfile {
-  id: string;
+interface StoreInfo {
   creditBalance: number;
-  email: string;
-  username: string;
+  monitorSlots: number;
 }
 
-type CheckoutState = "idle" | "processing" | "redirecting";
-
 const creditPackages = [
-  { id: "credit-50", name: "Starter Pack", credits: 50, price: 500, perCredit: "₦10 / credit" },
-  { id: "credit-110", name: "Most Popular", credits: 110, price: 1000, perCredit: "₦9.09 / credit", popular: true },
-  { id: "credit-300", name: "Value Pack", credits: 300, price: 2000, perCredit: "₦6.67 / credit" },
-  { id: "credit-1500", name: "Mega Pack", credits: 1500, price: 5000, perCredit: "₦3.33 / credit" },
+  { price: 500, credits: 50, popular: false },
+  { price: 1000, credits: 110, popular: true },
+  { price: 2000, credits: 300, popular: false },
+  { price: 5000, credits: 1500, popular: false },
 ];
 
 const slotPackages = [
-  { id: "slot-1", name: "1 Slot Add-on", slots: 1, price: 550 },
-  { id: "slot-3", name: "3 Slot Add-on", slots: 3, price: 1500, popular: true },
-  { id: "slot-6", name: "6 Slot Add-on", slots: 6, price: 2500 },
+  { price: 550, slots: 1, popular: false },
+  { price: 1500, slots: 3, popular: true },
+  { price: 2500, slots: 6, popular: false },
 ];
 
 const premiumPackages = [
   {
-    id: "premium-1",
-    name: "Tier 1",
     price: 2500,
+    title: "Tier 1",
     slots: 5,
     credits: 500,
-    interval: "1-minute ping interval",
-    retries: "Max 1 retry",
+    interval: "1-min intervals",
+    retries: "Max 1 Retry",
   },
   {
-    id: "premium-2",
-    name: "Tier 2",
     price: 7500,
+    title: "Tier 2",
     slots: 10,
     credits: 2000,
-    interval: "30-second heartbeats",
-    retries: "Up to 2 retries",
-    popular: true,
+    interval: "30-sec intervals",
+    retries: "Max 2 Retries",
   },
   {
-    id: "premium-3",
-    name: "Tier 3",
     price: 10500,
+    title: "Tier 3",
     slots: 15,
     credits: 7000,
-    interval: "10-second heartbeats",
-    retries: "Priority cron queue",
-    extra: "Priority cron execution at the top of the cycle",
+    interval: "10-sec intervals",
+    retries: "Priority cron execution",
   },
 ];
 
-export default function BillingPage() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+export default function StorePage() {
+  const [info, setInfo] = useState<StoreInfo>({ creditBalance: 0, monitorSlots: 0 });
   const [loading, setLoading] = useState(true);
-  const [checkoutState, setCheckoutState] = useState<CheckoutState>("idle");
-  const [message, setMessage] = useState<string | null>(null);
-
-  const checkoutAvailable = false;
-
-  const fetchUserProfile = useCallback(async () => {
-    try {
-      const res = await fetch("/api/auth/me");
-      if (!res.ok) {
-        if (res.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-        throw new Error("Failed to load profile");
-      }
-      const data = await res.json();
-      setUser({
-        id: data.user.id,
-        creditBalance: data.user.creditBalance,
-        email: data.user.email,
-        username: data.user.username,
-      });
-    } catch (err: any) {
-      console.error("[STORE] Failed to fetch profile:", err.message);
-    }
-  }, []);
+  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await fetchUserProfile();
-      setLoading(false);
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) {
+          if (res.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
+          throw new Error("Failed to load account info");
+        }
+        const data = await res.json();
+        setInfo({ creditBalance: data.user.creditBalance, monitorSlots: data.user.monitorSlots });
+      } catch (err: any) {
+        setCheckoutError(err.message || "Unable to load store info");
+      } finally {
+        setLoading(false);
+      }
     };
-    load();
-  }, [fetchUserProfile]);
 
-  if (loading) {
-    return (
-      <>
-        <Navbar creditBalance={0} />
-        <main className="flex-1">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center py-20">
-              <VolleyLoader size="lg" message="Loading store information..." />
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+    load();
+  }, []);
+
+  const handleCheckout = async (payload: Record<string, any>) => {
+    setCheckoutError(null);
+    setCheckoutMessage(null);
+    try {
+      const res = await fetch("/api/store/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Checkout is not ready yet");
+      // If backend returns a checkoutUrl, redirect the user
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+      setCheckoutMessage(data.message || "Checkout created successfully.");
+    } catch (err: any) {
+      setCheckoutError(err.message || "Checkout failed");
+    }
+  };
 
   return (
     <>
-      <Navbar creditBalance={user?.creditBalance ?? 0} />
+      <Navbar creditBalance={info.creditBalance} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="rounded-2xl bg-brand-cyan/10 p-2.5">
-                <CreditCard className="w-6 h-6 text-brand-cyan" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-slate-100">Store</h1>
-                <p className="text-slate-400 mt-1 max-w-2xl">
-                  Purchase credits, lift your monitor limit, or upgrade to premium performance packages.
-                </p>
-              </div>
+            <p className="text-sm uppercase tracking-[0.2em] text-brand-cyan">Store</p>
+            <h1 className="text-3xl font-bold text-slate-100">Credit & slot shop</h1>
+            <p className="text-slate-400 mt-2">Purchase credits, additional monitor slots, or permanent upgrade bundles.</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 mb-8">
+            <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
+              <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">Credit balance</p>
+              <p className="mt-4 text-4xl font-semibold text-slate-100">{info.creditBalance.toFixed(2)}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
+              <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">Monitor slots</p>
+              <p className="mt-4 text-4xl font-semibold text-slate-100">{info.monitorSlots}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
+              <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">Upgrade notes</p>
+              <p className="mt-4 text-slate-100 text-sm">Paystack integration will be connected to handle permanent purchases in the next release.</p>
             </div>
           </div>
 
-          <div className="mb-8 rounded-3xl border border-rose-600/30 bg-rose-900/80 p-5 text-sm text-rose-100 shadow-sm shadow-rose-500/10">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-rose-300" />
-                Checkout is not ready yet. Paystack integration will be connected soon.
-              </p>
-              <p className="text-slate-300/80">All store cards are visible for product planning and pricing validation.</p>
-            </div>
-          </div>
+          {checkoutMessage && <div className="rounded-3xl border border-emerald-700 bg-emerald-900/80 p-4 text-sm text-emerald-200 mb-4">{checkoutMessage}</div>}
+          {checkoutError && <div className="rounded-3xl border border-rose-700 bg-rose-900/80 p-4 text-sm text-rose-200 mb-4">{checkoutError}</div>}
 
-          <div className="mb-10">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-5">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-brand-cyan" /> Credits
-                </h2>
-                <p className="text-slate-400 text-sm mt-1">Fast consumable power for your monitors.</p>
-              </div>
-              <div className="rounded-full bg-slate-800/70 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-300">
-                Most popular: ₦1000 for 110 credits
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {creditPackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/95 p-6 transition duration-300 ease-out hover:-translate-y-1 hover:border-brand-cyan/40 hover:shadow-[0_24px_90px_-50px_rgba(14,165,233,0.7)] ${pkg.popular ? "border-brand-cyan/30 bg-slate-900/100" : ""}`}
-                >
-                  {pkg.popular ? (
-                    <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-cyan animate-pulse">
-                      Most popular
-                    </div>
-                  ) : null}
-                  <div className="mb-5">
-                    <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">{pkg.name}</p>
-                    <div className="mt-3 flex items-end gap-2">
-                      <p className="text-4xl font-bold text-slate-100">{pkg.credits.toLocaleString()}</p>
-                      <span className="text-sm text-slate-500">credits</span>
-                    </div>
-                  </div>
-                  <div className="mb-6 flex items-center justify-between gap-3 rounded-3xl bg-slate-950/80 px-4 py-3">
-                    <span className="text-sm text-slate-300">Price</span>
-                    <span className="text-lg font-semibold text-slate-100">₦{pkg.price.toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm text-slate-400 mb-6">{pkg.perCredit}</p>
-                  <button
-                    disabled={!checkoutAvailable}
-                    className="w-full rounded-2xl bg-slate-700/90 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Checkout soon
-                  </button>
+          <div className="space-y-10">
+            {/* Credits Section */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-brand-cyan/10 border border-brand-cyan/30 flex items-center justify-center">
+                  <Coins className="w-5 h-5 text-brand-cyan" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-10">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-5">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-amber-400" /> Slots
-                </h2>
-                <p className="text-slate-400 text-sm mt-1">Expand your active monitoring infrastructure.</p>
-              </div>
-              <div className="rounded-full bg-slate-800/70 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-300">
-                Most popular: ₦1500 for 3 slots
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {slotPackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/95 p-6 transition duration-300 ease-out hover:-translate-y-1 hover:border-amber-400/40 hover:shadow-[0_24px_90px_-50px_rgba(245,158,11,0.7)] ${pkg.popular ? "border-amber-400/30 bg-slate-900/100" : ""}`}
-                >
-                  {pkg.popular ? (
-                    <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-amber-300 animate-pulse">
-                      Most popular
-                    </div>
-                  ) : null}
-                  <div className="mb-5">
-                    <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">{pkg.name}</p>
-                    <div className="mt-3 flex items-end gap-2">
-                      <p className="text-4xl font-bold text-slate-100">{pkg.slots}</p>
-                      <span className="text-sm text-slate-500">slot{pkg.slots > 1 ? "s" : ""}</span>
-                    </div>
-                  </div>
-                  <div className="mb-6 flex items-center justify-between gap-3 rounded-3xl bg-slate-950/80 px-4 py-3">
-                    <span className="text-sm text-slate-300">One-time price</span>
-                    <span className="text-lg font-semibold text-slate-100">₦{pkg.price.toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm text-slate-400 mb-6">Purchase more monitor capacity instantly.</p>
-                  <button
-                    disabled={!checkoutAvailable}
-                    className="w-full rounded-2xl bg-slate-700/90 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Checkout soon
-                  </button>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-100">Credits</h2>
+                  <p className="text-sm text-slate-400">Fast consumable power for your monitors</p>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {creditPackages.map((pkg) => {
+                  const isPopular = pkg.popular;
+                  return (
+                    <div
+                      key={pkg.price}
+                      className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                        isPopular ? "scale-105" : ""
+                      }`}
+                    >
+                      {isPopular && (
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500 text-slate-50 z-20 whitespace-nowrap shadow-lg shadow-cyan-500/30">
+                          Most popular
+                        </span>
+                      )}
+                      <div
+                        className={`flex flex-col flex-1 relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border p-6 ${
+                          isPopular
+                            ? "border-cyan-500 shadow-lg shadow-cyan-500/20"
+                            : "border-slate-700"
+                        }`}
+                      >
+                        {/* Aurora mesh: two cyan nodes with inline animation styles */}
+                        <div
+                          className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
+                        <div
+                          className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-cyan-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
 
-          <div className="mb-12">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-5">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-violet-400" /> Premium packages
-                </h2>
-                <p className="text-slate-400 text-sm mt-1">One-time upgrades for better scaling, speed, and reliability.</p>
-              </div>
-              <div className="rounded-full bg-slate-800/70 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-300">
-                Most popular: Tier 2 at ₦7500
-              </div>
-            </div>
-            <div className="grid gap-4 lg:grid-cols-3">
-              {premiumPackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/95 p-6 transition duration-300 ease-out hover:-translate-y-1 hover:border-violet-400/40 hover:shadow-[0_24px_90px_-50px_rgba(168,85,247,0.7)] ${pkg.popular ? "border-violet-400/30 bg-slate-900/100" : ""}`}
-                >
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">{pkg.name}</p>
-                      <p className="text-3xl font-bold text-slate-100">₦{pkg.price.toLocaleString()}</p>
-                    </div>
-                    {pkg.popular ? (
-                      <div className="rounded-full bg-violet-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-violet-300 animate-pulse">
-                        Most popular
+                        <div className="relative z-10 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 text-slate-300 mb-4">
+                            <Coins className="w-4 h-4 text-brand-cyan" />
+                            <span className="text-sm font-medium">{pkg.credits} credits</span>
+                          </div>
+                          <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                          <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
+                          <button
+                            onClick={() =>
+                              handleCheckout({ type: "credit", price: pkg.price, credits: pkg.credits })
+                            }
+                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                              isPopular
+                                ? "bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+                                : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                            }`}
+                          >
+                            Checkout
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                    ) : null}
-                  </div>
-                  <ul className="mb-6 space-y-3 text-sm text-slate-300">
-                    <li className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400" /> {pkg.slots} active monitor slots
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400" /> {pkg.credits} credits
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400" /> {pkg.interval}
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400" /> {pkg.retries}
-                    </li>
-                    {pkg.extra ? (
-                      <li className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-amber-400" /> {pkg.extra}
-                      </li>
-                    ) : null}
-                  </ul>
-                  <button
-                    disabled={!checkoutAvailable}
-                    className="w-full rounded-2xl bg-slate-700/90 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Checkout soon
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-slate-300">Secure Store Preview</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Store checkout is currently disabled while we finish payment integration. The visual pricing and package lineup are ready for review.
-                </p>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            </section>
+
+            {/* Slots Section */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-brand-purple/10 border border-brand-purple/30 flex items-center justify-center">
+                  <Server className="w-5 h-5 text-brand-purple" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-100">Slots</h2>
+                  <p className="text-sm text-slate-400">Expand your monitoring infrastructure</p>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {slotPackages.map((pkg) => {
+                  const isPopular = pkg.popular;
+                  return (
+                    <div
+                      key={pkg.price}
+                      className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                        isPopular ? "scale-105" : ""
+                      }`}
+                    >
+                      {isPopular && (
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500 text-white z-20 whitespace-nowrap shadow-lg shadow-purple-500/30">
+                          Most popular
+                        </span>
+                      )}
+                      <div
+                        className={`flex flex-col flex-1 relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border p-6 ${
+                          isPopular
+                            ? "border-purple-500 shadow-lg shadow-purple-500/20"
+                            : "border-slate-700"
+                        }`}
+                      >
+                        {/* Aurora mesh: two purple nodes with inline animation styles */}
+                        <div
+                          className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
+                        <div
+                          className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/20 blur-[60px]"
+                          style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                        />
+
+                        <div className="relative z-10 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 text-slate-300 mb-4">
+                            <Server className="w-4 h-4 text-brand-purple" />
+                            <span className="text-sm font-medium">
+                              {pkg.slots} additional slot{pkg.slots > 1 ? "s" : ""}
+                            </span>
+                          </div>
+                          <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                          <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
+                          <button
+                            onClick={() =>
+                              handleCheckout({ type: "slot", price: pkg.price, slots: pkg.slots })
+                            }
+                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                              isPopular
+                                ? "bg-purple-500 text-white hover:bg-purple-400"
+                                : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                            }`}
+                          >
+                            Checkout
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Premium Packages Section */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-100">Premium packages</h2>
+                  <p className="text-sm text-slate-400">
+                    Luxurious one-time permanent unlocks
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-4 xl:grid-cols-3">
+                {premiumPackages.map((pkg) => {
+                  return (
+                    <div
+                      key={pkg.price}
+                      className="flex flex-col relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border border-slate-700 transition-all duration-300 hover:-translate-y-1 p-6"
+                    >
+                      {/* Aurora mesh: cyan + purple nebula with inline animation styles */}
+                      <div
+                        className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-cyan-500/15 blur-[60px]"
+                        style={{ animation: "aurora-drift-a 12s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
+                      <div
+                        className="pointer-events-none absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-purple-500/15 blur-[60px]"
+                        style={{ animation: "aurora-drift-b 14s ease-in-out infinite", willChange: "transform, opacity" }}
+                      />
+
+                      <div className="relative z-10 flex flex-col flex-1">
+                        <div className="flex items-center gap-2 text-slate-300 mb-4">
+                          <Crown className="w-4 h-4 text-amber-400" />
+                          <span className="text-sm font-medium">{pkg.title}</span>
+                        </div>
+                        <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
+                        <ul className="mt-5 space-y-3 text-slate-300 text-sm">
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
+                            <span>{pkg.slots} permanent slots</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
+                            <span>{pkg.credits} credits</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
+                            <span>{pkg.interval}</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
+                            <span>{pkg.retries}</span>
+                          </li>
+                        </ul>
+                        <button
+                          onClick={() =>
+                            handleCheckout({ type: "premium", price: pkg.price, tier: pkg.title })
+                          }
+                          className="mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors border border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                        >
+                          Checkout
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
           </div>
         </div>
       </main>
