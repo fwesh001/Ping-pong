@@ -17,6 +17,13 @@ interface StoreInfo {
   monitorSlots: number;
 }
 
+interface PackageRecord {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+}
+
 const creditPackages = [
   { price: 500, credits: 50, popular: false },
   { price: 1000, credits: 110, popular: true },
@@ -57,9 +64,14 @@ const premiumPackages = [
   },
 ];
 
+const EXPRESS_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+
 export default function StorePage() {
   const [info, setInfo] = useState<StoreInfo>({ creditBalance: 0, monitorSlots: 0 });
+  const [userId, setUserId] = useState<string | null>(null);
+  const [packages, setPackages] = useState<PackageRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
@@ -76,6 +88,7 @@ export default function StorePage() {
           throw new Error("Failed to load account info");
         }
         const data = await res.json();
+        setUserId(data.user.id);
         setInfo({ creditBalance: data.user.creditBalance, monitorSlots: data.user.monitorSlots });
       } catch (err: any) {
         setCheckoutError(err.message || "Unable to load store info");
@@ -87,27 +100,93 @@ export default function StorePage() {
     load();
   }, []);
 
+  useEffect(() => {
+    const loadPackages = async () => {
+      setPackagesLoading(true);
+      try {
+        if (!EXPRESS_API_BASE) {
+          setCheckoutError(
+            "Checkout backend is not configured. Set NEXT_PUBLIC_BACKEND_URL to your Express API base URL."
+          );
+          return;
+        }
+
+        const res = await fetch(`${EXPRESS_API_BASE.replace(/\/$/, "")}/api/v1/admin/packages`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to load billing packages");
+        setPackages(Array.isArray(data.packages) ? data.packages : []);
+      } catch (err: any) {
+        setCheckoutError(err.message || "Unable to load billing packages");
+      } finally {
+        setPackagesLoading(false);
+      }
+    };
+
+    loadPackages();
+  }, []);
+
+  const findPackageId = (type: "credit" | "slot" | "premium", price: number) => {
+    const pkg = packages.find((entry) => Number(entry.price) === Number(price));
+    if (pkg) return pkg.id;
+
+    // Fallbacks for legacy seed data if the package list hasn't loaded yet.
+    if (type === "credit") {
+      const fallback: Record<number, string> = { 500: "credit-50", 1000: "credit-110", 2000: "credit-300", 5000: "credit-1500" };
+      return fallback[price] ?? "";
+    }
+
+    if (type === "slot") {
+      const fallback: Record<number, string> = { 550: "slot-1", 1500: "slot-3", 2500: "slot-6" };
+      return fallback[price] ?? "";
+    }
+
+    const fallback: Record<number, string> = { 2500: "premium-1", 7500: "premium-2", 10500: "premium-3" };
+    return fallback[price] ?? "";
+  };
+
   const handleCheckout = async (payload: Record<string, any>) => {
     setCheckoutError(null);
     setCheckoutMessage(null);
+
+    if (!EXPRESS_API_BASE) {
+      setCheckoutError(
+        "Checkout backend is not configured. Set NEXT_PUBLIC_BACKEND_URL to your Express API base URL."
+      );
+      return;
+    }
+
     try {
-      const res = await fetch("/api/store/checkout", {
+      const packageId = findPackageId(payload.type, payload.price);
+      if (!packageId) {
+        throw new Error("Package ID not found for this selection");
+      }
+
+      if (!userId) {
+        throw new Error("User profile not loaded yet");
+      }
+
+      const res = await fetch(`${EXPRESS_API_BASE.replace(/\/$/, "")}/api/v1/admin/initialize-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          packageId,
+          userId,
+          source: "web",
+        }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Checkout is not ready yet");
-      // If backend returns a checkoutUrl, redirect the user
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+      if (!res.ok) throw new Error(data.error || data.message || "Checkout failed");
+      if (data.checkoutLink) {
+        window.location.href = data.checkoutLink;
         return;
       }
-      setCheckoutMessage(data.message || "Checkout created successfully.");
+      setCheckoutMessage(data.message || "Checkout session created successfully.");
     } catch (err: any) {
       setCheckoutError(err.message || "Checkout failed");
     }
   };
+
+  const isBusy = loading || packagesLoading;
 
   return (
     <>
@@ -190,10 +269,11 @@ export default function StorePage() {
                           <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
                           <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
                           <button
+                            disabled={isBusy || !userId || packagesLoading}
                             onClick={() =>
                               handleCheckout({ type: "credit", price: pkg.price, credits: pkg.credits })
                             }
-                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                               isPopular
                                 ? "bg-cyan-500 text-slate-950 hover:bg-cyan-400"
                                 : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
@@ -263,10 +343,11 @@ export default function StorePage() {
                           <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
                           <p className="text-xs text-slate-500 mt-1">One-time purchase</p>
                           <button
+                            disabled={isBusy || !userId || packagesLoading}
                             onClick={() =>
                               handleCheckout({ type: "slot", price: pkg.price, slots: pkg.slots })
                             }
-                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
+                            className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                               isPopular
                                 ? "bg-purple-500 text-white hover:bg-purple-400"
                                 : "border border-slate-600 text-slate-300 hover:bg-slate-700/50"
@@ -338,10 +419,11 @@ export default function StorePage() {
                           </li>
                         </ul>
                         <button
+                          disabled={isBusy || !userId || packagesLoading}
                           onClick={() =>
                             handleCheckout({ type: "premium", price: pkg.price, tier: pkg.title })
                           }
-                          className="mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors border border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                          className="mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors border border-slate-600 text-slate-300 hover:bg-slate-700/50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Checkout
                           <ArrowRight className="w-4 h-4" />
