@@ -401,6 +401,7 @@ export default function MonitorDetailPage() {
                 <Globe className="w-3.5 h-3.5" /> {monitor.targetUrl}
               </p>
             </div>
+          </div>
 
           <div className="grid gap-4 mb-8">
             <div className="card border border-slate-700 bg-slate-900 p-5">
