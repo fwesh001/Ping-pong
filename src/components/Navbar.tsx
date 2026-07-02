@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { CreditCard, LogOut, ChevronDown, LayoutDashboard, CalendarCheck, ScrollText, Bell, ShoppingCart, ShieldCheck, Menu, X } from \"lucide-react\";
+import { CreditCard, LogOut, ChevronDown, LayoutDashboard, CalendarCheck, ScrollText, Bell, ShoppingCart, ShieldCheck, Menu, X } from "lucide-react";
 
 interface NavbarProps {
   creditBalance: number;
