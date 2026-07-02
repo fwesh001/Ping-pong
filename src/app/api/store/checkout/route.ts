@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   // Proxy to configured backend, forwarding session token as Bearer
   try {
     const token = await getSession();
-    const target = `${BACKEND_URL.replace(/\/$/, "")}/store/checkout`;
+    const target = `${BACKEND_URL.replace(/\/$/, "")}/api/v1/admin/initialize-payment`;
     console.log(`/api/store/checkout proxy ->`, target);
     const proxied = await fetch(target, {
       method: "POST",
