@@ -236,11 +236,11 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {creditPackages.map((pkg) => {
+                {(packages.length ? packages : creditPackages).map((pkg: any) => {
                   const isPopular = pkg.popular;
                   return (
-                    <div
-                      key={pkg.price}
+                      <div
+                        key={pkg.id ?? pkg.price}
                       className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                         isPopular ? "scale-105" : ""
                       }`}
