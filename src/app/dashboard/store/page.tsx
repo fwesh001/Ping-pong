@@ -70,6 +70,32 @@ const premiumPackages = [
 const PACKAGES_API_URL = "/api/store/packages";
 const CHECKOUT_API_URL = "/api/store/checkout";
 
+const getIsPopular = (pkg: any) => {
+  if (typeof pkg.popular === "boolean") return pkg.popular;
+  if (pkg.type === "CREDIT" && Number(pkg.price) === 1000) return true;
+  if (pkg.type === "SLOT" && Number(pkg.price) === 1500) return true;
+  return false;
+};
+
+const getPremiumFeature = (pkg: any) => {
+  const interval = pkg.interval ?? pkg.features?.interval;
+  const retries = pkg.retries ?? pkg.features?.retries;
+
+  if (interval && retries) return { interval, retries };
+
+  if (Number(pkg.price) === 2500) {
+    return { interval: "1-min intervals", retries: "Max 1 Retry" };
+  }
+  if (Number(pkg.price) === 7500) {
+    return { interval: "30-sec intervals", retries: "Max 2 Retries" };
+  }
+  if (Number(pkg.price) === 10500) {
+    return { interval: "10-sec intervals", retries: "Priority cron execution" };
+  }
+
+  return { interval: interval ?? "", retries: retries ?? "" };
+};
+
 export default function StorePage() {
   const [info, setInfo] = useState<StoreInfo>({ creditBalance: 0, monitorSlots: 0 });
   const [userId, setUserId] = useState<string | null>(null);
@@ -221,7 +247,10 @@ export default function StorePage() {
             </div>
             <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6">
               <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">Upgrade notes</p>
-              <p className="mt-4 text-slate-100 text-sm">Paystack integration will be connected to handle permanent purchases in the next release.</p>
+              <p className="mt-4 text-slate-100 text-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 2l3 2 5 .5v5.5A9 9 0 0112 22 3 3 0 019 20 9 9 0 013 10V5.5L8 5 12 2z"/></svg>
+                Secure payments via Flutterwave — Flutterwave integration will be connected to handle permanent purchases in the next release.
+              </p>
             </div>
           </div>
 
@@ -242,7 +271,7 @@ export default function StorePage() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {(packagesLoading ? creditPackages : ((packages.length ? packages : []) as any[])).filter(p => p.type ? p.type === 'CREDIT' : true).map((pkg: any) => {
-                  const isPopular = pkg.popular;
+                  const isPopular = getIsPopular(pkg);
                   return (
                       <div
                         key={pkg.id ?? pkg.price}
@@ -314,7 +343,7 @@ export default function StorePage() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {(packagesLoading ? slotPackages : (packages as any[]).filter(p => p.type === 'SLOT')).map((pkg: any) => {
-                  const isPopular = pkg.popular;
+                  const isPopular = getIsPopular(pkg);
                   return (
                     <div
                       key={pkg.price}
@@ -391,8 +420,7 @@ export default function StorePage() {
               <div className="grid gap-4 xl:grid-cols-3">
                 {(packagesLoading ? premiumPackages : (packages as any[]).filter(p => p.type === 'PREMIUM')).map((pkg: any) => {
                   const title = pkg.title ?? (pkg.tier ? `Tier ${pkg.tier}` : "Premium");
-                  const interval = pkg.interval ?? pkg.features?.interval ?? "";
-                  const retries = pkg.retries ?? pkg.features?.retries ?? "";
+                  const { interval, retries } = getPremiumFeature(pkg);
                   return (
                     <div
                       key={pkg.price}
