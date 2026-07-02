@@ -75,6 +75,7 @@ export default function StorePage() {
   const [packagesLoading, setPackagesLoading] = useState(true);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [statusChecked, setStatusChecked] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -102,6 +103,24 @@ export default function StorePage() {
   }, []);
 
   useEffect(() => {
+    const checkStoreStatus = async () => {
+      try {
+        const res = await fetch("/api/store/status");
+        if (!res.ok) return;
+        const data = await res.json();
+        const paymentsConfigured = data?.backend?.data?.paymentsConfigured;
+        if (paymentsConfigured === false) {
+          setCheckoutError("Store checkout is not configured yet. Paystack integration will be added soon.");
+        }
+      } catch (e) {
+        // ignore
+      } finally {
+        setStatusChecked(true);
+      }
+    };
+
+    checkStoreStatus();
+
     const loadPackages = async () => {
       setPackagesLoading(true);
       try {
