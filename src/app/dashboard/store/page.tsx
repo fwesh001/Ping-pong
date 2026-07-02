@@ -20,7 +20,10 @@ interface StoreInfo {
 interface PackageRecord {
   id: string;
   name: string;
-  credits: number;
+  credits?: number;
+  slots?: number;
+  tier?: number;
+  type?: string;
   price: number;
 }
 
@@ -139,7 +142,8 @@ export default function StorePage() {
   }, []);
 
   const findPackageId = (type: "credit" | "slot" | "premium", price: number) => {
-    const pkg = packages.find((entry) => Number(entry.price) === Number(price));
+    const wantedType = type === "credit" ? "CREDIT" : type === "slot" ? "SLOT" : "PREMIUM";
+    const pkg = packages.find((entry) => String(entry.type) === wantedType && Number(entry.price) === Number(price));
     if (pkg) return pkg.id;
 
     // Fallbacks for legacy seed data if the package list hasn't loaded yet.
@@ -237,7 +241,7 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {(packages.length ? packages : creditPackages).map((pkg: any) => {
+                {((packages.length ? packages : creditPackages) as any[]).filter(p => p.type ? p.type === 'CREDIT' : true).map((pkg: any) => {
                   const isPopular = pkg.popular;
                   return (
                       <div
@@ -309,7 +313,7 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {slotPackages.map((pkg) => {
+                {(packages.length ? (packages as any[]).filter(p => p.type === 'SLOT') : slotPackages).map((pkg: any) => {
                   const isPopular = pkg.popular;
                   return (
                     <div
@@ -385,7 +389,7 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 xl:grid-cols-3">
-                {premiumPackages.map((pkg) => {
+                {(packages.length ? (packages as any[]).filter(p => p.type === 'PREMIUM') : premiumPackages).map((pkg: any) => {
                   return (
                     <div
                       key={pkg.price}
