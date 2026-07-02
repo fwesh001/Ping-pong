@@ -10,7 +10,7 @@ import SchedulingTabs, { type ThreeModeFormState } from "@/components/ui/Schedul
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import {
   CheckCircle2, XCircle, Clock, AlertTriangle, Pause, Play,
-  Timer, Trash2, Save, X, CalendarClock, Zap, ExternalLink,
+  RefreshCw, Timer, Trash2, Save, X, CalendarClock, Zap, ExternalLink,
   BarChart3, Activity, Globe, Settings, ChevronLeft,
 } from "lucide-react";
 
@@ -246,10 +246,124 @@ export default function MonitorDetailPage() {
     return monitor.isActive ? "ACTIVE" : "PAUSED";
   };
 
+  const parseActiveDays = (value: string | string[] | null): string[] => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    try {
+      return JSON.parse(value as string) as string[];
+    } catch {
+      return String(value).split(",").map((d) => d.trim()).filter(Boolean);
+    }
+  };
+
+  const monitorScheduleMode = monitor
+    ? monitor.isOneOff
+      ? "ONEOFF"
+      : monitor.scheduleType === "SCHEDULED" || monitor.startsAt
+      ? "SCHEDULED"
+      : "RECURRING"
+    : "RECURRING";
+
+  const formatDateTime = (value: string | null) =>
+    value ? new Date(value).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "—";
+
+  const scheduleDetails = () => {
+    if (!monitor) return null;
+
+    if (monitor.isOneOff) {
+      return (
+        <div className="space-y-2">
+          <p className="text-sm text-slate-300">Runs once at the scheduled execution time and then completes.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-100">
+            <div>
+              <p className="text-xs text-slate-400 uppercase">Execution</p>
+              <p>{formatDateTime(monitor.startsAt)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 uppercase">Status</p>
+              <p>{monitor.isCompleted ? "Completed" : "Pending"}</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (monitor.scheduleType === "SCHEDULED" || monitor.startsAt) {
+      const days = parseActiveDays(monitor.activeDays);
+      return (
+        <div className="space-y-2">
+          <p className="text-sm text-slate-300">Runs only during the selected schedule window on chosen days.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-100">
+            <div>
+              <p className="text-xs text-slate-400 uppercase">Days</p>
+              <p>{days.length > 0 ? days.map((day) => day.charAt(0).toUpperCase() + day.slice(1)).join(", ") : "Every day"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 uppercase">Execution time</p>
+              <p>{monitor.executeTime || "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 uppercase">Starts</p>
+              <p>{formatDateTime(monitor.startsAt)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 uppercase">Ends</p>
+              <p>{monitor.endsAt ? formatDateTime(monitor.endsAt) : "None"}</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        <p className="text-sm text-slate-300">Runs repeatedly at a fixed interval as long as the monitor is active.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-100">
+          <div>
+            <p className="text-xs text-slate-400 uppercase">Interval</p>
+            <p>Every {monitor.pingInterval}s</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 uppercase">Last checked</p>
+            <p>{formatDateTime(monitor.lastChecked)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 uppercase">Timeout</p>
+            <p>{monitor.timeoutMs} ms</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const scheduleModeBadge = () => {
+    if (!monitor) return null;
+    if (monitor.isOneOff) {
+      return {
+        label: "One-off",
+        icon: <Zap className="w-4 h-4" />,
+        badgeClass: "bg-slate-800 text-brand-purple border border-brand-purple",
+      };
+    }
+    if (monitor.scheduleType === "SCHEDULED" || monitor.startsAt) {
+      return {
+        label: "Scheduled",
+        icon: <CalendarClock className="w-4 h-4" />,
+        badgeClass: "bg-slate-800 text-emerald-400 border border-emerald-500",
+      };
+    }
+    return {
+      label: "Recurring",
+      icon: <RefreshCw className="w-4 h-4" />,
+      badgeClass: "bg-slate-800 text-brand-cyan border border-brand-cyan",
+    };
+  };
+
   const hasChanges = monitor && (
     editName !== monitor.serviceName ||
     isOneOff !== monitor.isOneOff ||
     isScheduled !== !!monitor.startsAt ||
+    formSchedule.scheduleMode !== monitorScheduleMode ||
     formSchedule.pingIntervalSecs !== monitor.pingInterval ||
     formSchedule.timeoutMs !== monitor.timeoutMs
   );
@@ -287,35 +401,26 @@ export default function MonitorDetailPage() {
                 <Globe className="w-3.5 h-3.5" /> {monitor.targetUrl}
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-                {monitor.isCompleted ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-brand-cyan">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Completed
-                </span>
-              ) : monitor.startsAt && new Date(monitor.startsAt) > new Date() ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-brand-purple">
-                  <CalendarClock className="w-3.5 h-3.5" /> Scheduled
-                </span>
-              ) : monitor.isActive ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-emerald-400">
-                  <Play className="w-3.5 h-3.5" /> Active
-                </span>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400">
-                    <Pause className="w-3.5 h-3.5" /> Paused
-                  </span>
-                  <button
-                    onClick={handleResume}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-emerald-400 hover:bg-slate-700 transition-colors"
-                  >
-                    <Play className="w-3.5 h-3.5" /> Resume
-                  </button>
+
+          <div className="grid gap-4 mb-8">
+            <div className="card border border-slate-700 bg-slate-900 p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-semibold">Schedule Mode</p>
+                  <div className="mt-3 flex items-center gap-2 text-lg font-semibold text-slate-100">
+                    {scheduleModeBadge()?.icon}
+                    {scheduleModeBadge()?.label}
+                  </div>
                 </div>
-              )}
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${scheduleModeBadge()?.badgeClass}`}>
+                  {scheduleModeBadge()?.icon} {scheduleModeBadge()?.label}
+                </span>
+              </div>
+              <div className="mt-4 border-t border-slate-800 pt-4">
+                {scheduleDetails()}
+              </div>
             </div>
           </div>
-
           {/* ===== STATUS HERO BANNER ===== */}
           <div className="mb-8">
             <StatusHeroBanner
