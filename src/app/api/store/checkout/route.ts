@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  console.log(`/api/store/checkout received POST`);
   // Validate auth and return early if not authenticated
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
@@ -49,4 +50,8 @@ export async function GET() {
   const BACKEND_URL = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? "https://ping-pong-cron.onrender.com";
   const configured = Boolean(process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL);
   return NextResponse.json({ message: "POST only endpoint for initializing checkout.", backendUrl: BACKEND_URL, configured }, { status: configured ? 200 : 404 });
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({ ok: true }, { status: 204 });
 }
