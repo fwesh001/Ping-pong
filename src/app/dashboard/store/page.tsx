@@ -390,6 +390,9 @@ export default function StorePage() {
               </div>
               <div className="grid gap-4 xl:grid-cols-3">
                 {(packages.length ? (packages as any[]).filter(p => p.type === 'PREMIUM') : premiumPackages).map((pkg: any) => {
+                  const title = pkg.title ?? (pkg.tier ? `Tier ${pkg.tier}` : "Premium");
+                  const interval = pkg.interval ?? pkg.features?.interval ?? "";
+                  const retries = pkg.retries ?? pkg.features?.retries ?? "";
                   return (
                     <div
                       key={pkg.price}
@@ -408,7 +411,7 @@ export default function StorePage() {
                       <div className="relative z-10 flex flex-col flex-1">
                         <div className="flex items-center gap-2 text-slate-300 mb-4">
                           <Crown className="w-4 h-4 text-amber-400" />
-                          <span className="text-sm font-medium">{pkg.title}</span>
+                          <span className="text-sm font-medium">{title}</span>
                         </div>
                         <p className="text-4xl font-bold text-slate-100">₦{pkg.price}</p>
                         <ul className="mt-5 space-y-3 text-slate-300 text-sm">
@@ -422,11 +425,11 @@ export default function StorePage() {
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
-                            <span>{pkg.interval}</span>
+                            <span>{interval}</span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle2 className="w-4 h-4 text-brand-cyan flex-shrink-0 mt-0.5" />
-                            <span>{pkg.retries}</span>
+                            <span>{retries}</span>
                           </li>
                         </ul>
                         <button
