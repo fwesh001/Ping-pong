@@ -241,7 +241,7 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {((packages.length ? packages : creditPackages) as any[]).filter(p => p.type ? p.type === 'CREDIT' : true).map((pkg: any) => {
+                {(packagesLoading ? creditPackages : ((packages.length ? packages : []) as any[])).filter(p => p.type ? p.type === 'CREDIT' : true).map((pkg: any) => {
                   const isPopular = pkg.popular;
                   return (
                       <div
@@ -313,7 +313,7 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {(packages.length ? (packages as any[]).filter(p => p.type === 'SLOT') : slotPackages).map((pkg: any) => {
+                {(packagesLoading ? slotPackages : (packages as any[]).filter(p => p.type === 'SLOT')).map((pkg: any) => {
                   const isPopular = pkg.popular;
                   return (
                     <div
@@ -389,7 +389,7 @@ export default function StorePage() {
                 </div>
               </div>
               <div className="grid gap-4 xl:grid-cols-3">
-                {(packages.length ? (packages as any[]).filter(p => p.type === 'PREMIUM') : premiumPackages).map((pkg: any) => {
+                {(packagesLoading ? premiumPackages : (packages as any[]).filter(p => p.type === 'PREMIUM')).map((pkg: any) => {
                   const title = pkg.title ?? (pkg.tier ? `Tier ${pkg.tier}` : "Premium");
                   const interval = pkg.interval ?? pkg.features?.interval ?? "";
                   const retries = pkg.retries ?? pkg.features?.retries ?? "";
