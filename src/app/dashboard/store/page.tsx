@@ -249,7 +249,7 @@ export default function StorePage() {
               <p className="text-sm text-slate-400 uppercase tracking-[0.2em]">Upgrade notes</p>
               <p className="mt-4 text-slate-100 text-sm flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 2l3 2 5 .5v5.5A9 9 0 0112 22 3 3 0 019 20 9 9 0 013 10V5.5L8 5 12 2z"/></svg>
-                Secure payments via Flutterwave — Flutterwave integration will be connected to handle permanent purchases in the next release.
+                Secure payments via Flutterwave.
               </p>
             </div>
           </div>
