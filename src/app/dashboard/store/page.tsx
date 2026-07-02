@@ -64,7 +64,8 @@ const premiumPackages = [
   },
 ];
 
-const EXPRESS_API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+const PACKAGES_API_URL = "/api/store/packages";
+const CHECKOUT_API_URL = "/api/store/checkout";
 
 export default function StorePage() {
   const [info, setInfo] = useState<StoreInfo>({ creditBalance: 0, monitorSlots: 0 });
@@ -104,14 +105,7 @@ export default function StorePage() {
     const loadPackages = async () => {
       setPackagesLoading(true);
       try {
-        if (!EXPRESS_API_BASE) {
-          setCheckoutError(
-            "Checkout backend is not configured. Set NEXT_PUBLIC_BACKEND_URL to your Express API base URL."
-          );
-          return;
-        }
-
-        const res = await fetch(`${EXPRESS_API_BASE.replace(/\/$/, "")}/api/v1/admin/packages`);
+        const res = await fetch(PACKAGES_API_URL);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to load billing packages");
         setPackages(Array.isArray(data.packages) ? data.packages : []);
@@ -148,13 +142,6 @@ export default function StorePage() {
     setCheckoutError(null);
     setCheckoutMessage(null);
 
-    if (!EXPRESS_API_BASE) {
-      setCheckoutError(
-        "Checkout backend is not configured. Set NEXT_PUBLIC_BACKEND_URL to your Express API base URL."
-      );
-      return;
-    }
-
     try {
       const packageId = findPackageId(payload.type, payload.price);
       if (!packageId) {
@@ -165,7 +152,7 @@ export default function StorePage() {
         throw new Error("User profile not loaded yet");
       }
 
-      const res = await fetch(`${EXPRESS_API_BASE.replace(/\/$/, "")}/api/v1/admin/initialize-payment`, {
+      const res = await fetch(CHECKOUT_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
