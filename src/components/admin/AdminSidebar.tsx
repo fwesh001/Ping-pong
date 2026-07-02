@@ -25,7 +25,7 @@ const navItems = [
   { href: "/admin/control-panel", label: "Control Panel", icon: Sliders },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/monitors", label: "Monitors", icon: Activity },
-  { href: "/admin/credits", label: "Credits", icon: CreditCard },
+  { href: "/admin/packages", label: "Packages", icon: CreditCard },
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/support", label: "Support/Reports", icon: LifeBuoy },
   { href: "/admin/audit", label: "Audit Logs", icon: Scroll },
