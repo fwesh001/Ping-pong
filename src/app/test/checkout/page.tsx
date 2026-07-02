@@ -42,6 +42,7 @@ export default function TestCheckoutPage() {
       if (!userId) throw new Error("You must be logged in to run this test.");
       const res = await fetch("/api/store/checkout", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ packageId, userId, source: "web" }),
       });

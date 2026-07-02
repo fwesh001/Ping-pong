@@ -173,6 +173,7 @@ export default function StorePage() {
 
       const res = await fetch(CHECKOUT_API_URL, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           packageId,
