@@ -25,7 +25,7 @@ export default function AdminPackagesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
-  const [modalMode, setModalMode] = useState<PackageModalMode>("create");
+  const [modalMode, setModalMode] = useState<PackageModalMode | null>(null);
 
   // form
   const [formType, setFormType] = useState("CREDIT");
@@ -103,7 +103,8 @@ export default function AdminPackagesPage() {
         await adminApi.post(`/packages`, payload);
       }
       setSelectedPackage(null);
-      fetchData();
+      setModalMode(null);
+      await fetchData();
     } catch (err: any) { setError(err.message || "Unable to save package"); }
   };
 
@@ -172,7 +173,7 @@ export default function AdminPackagesPage() {
       {(selectedPackage || modalMode === "create") && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-semibold text-slate-100">{modalMode === "edit" ? `Edit: ${selectedPackage?.name}` : "Create New Package"}</h3><button onClick={() => setSelectedPackage(null)} className="text-slate-400 hover:text-slate-100">✕</button></div>
+            <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-semibold text-slate-100">{modalMode === "edit" ? `Edit: ${selectedPackage?.name}` : "Create New Package"}</h3><button onClick={() => { setSelectedPackage(null); setModalMode(null); }} className="text-slate-400 hover:text-slate-100">✕</button></div>
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-xs text-slate-400">Type</label>
@@ -213,7 +214,7 @@ export default function AdminPackagesPage() {
                 <textarea value={formFeatures} onChange={(e) => setFormFeatures(e.target.value)} className="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-100 h-24" />
               </div>
             </div>
-            <div className="mt-6 flex items-center justify-between gap-3"><div>{modalMode === "edit" && selectedPackage && (<button onClick={() => handleDeletePackage(selectedPackage)} className="rounded-2xl bg-rose-500 px-4 py-2 text-xs font-semibold text-slate-950">Delete Package</button>)}</div><div className="flex gap-2"><button onClick={() => setSelectedPackage(null)} className="rounded-2xl border border-slate-700 px-4 py-2 text-xs text-slate-300">Cancel</button><button onClick={handleSavePackage} className="rounded-2xl bg-brand-cyan px-4 py-2 text-xs font-semibold text-slate-950">{modalMode === "edit" ? "Update Package" : "Create Package"}</button></div></div>
+            <div className="mt-6 flex items-center justify-between gap-3"><div>{modalMode === "edit" && selectedPackage && (<button onClick={() => { handleDeletePackage(selectedPackage); setSelectedPackage(null); setModalMode(null); }} className="rounded-2xl bg-rose-500 px-4 py-2 text-xs font-semibold text-slate-950">Delete Package</button>)}</div><div className="flex gap-2"><button onClick={() => { setSelectedPackage(null); setModalMode(null); }} className="rounded-2xl border border-slate-700 px-4 py-2 text-xs text-slate-300">Cancel</button><button onClick={handleSavePackage} className="rounded-2xl bg-brand-cyan px-4 py-2 text-xs font-semibold text-slate-950">{modalMode === "edit" ? "Update Package" : "Create Package"}</button></div></div>
           </div>
         </div>
       )}
