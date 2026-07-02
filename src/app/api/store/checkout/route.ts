@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   const BACKEND_URL = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? "https://ping-pong-cron.onrender.com";
   const configured = Boolean(process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL);
-  return NextResponse.json({ message: "POST only endpoint for initializing checkout.", backendUrl: BACKEND_URL, configured }, { status: configured ? 200 : 404 });
+  return NextResponse.json({ message: "POST only endpoint for initializing checkout.", backendUrl: BACKEND_URL, configured }, { status: 200 });
 }
 
 export async function OPTIONS() {
